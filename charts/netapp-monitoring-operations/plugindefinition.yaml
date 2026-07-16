@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: netapp-monitoring-operations
 spec:
-  version: 1.0.1
+  version: 1.0.2
   displayName: NetApp Monitoring operations bundle
   description: Operations bundle for the NetApp storage backend
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/netapp-monitoring-operations/refs/heads/main/README.md
@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: netapp-monitoring-operations
     repository: oci://ghcr.io/cloudoperators/netapp-monitoring-operations/charts
-    version: 1.0.1
+    version: 1.0.2
   options:
     - name: prometheusRules.create
       description: Create Prometheus alerting rules (PrometheusRule resources)
