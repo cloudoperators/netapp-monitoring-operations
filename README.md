@@ -1,26 +1,146 @@
-[![REUSE status](https://api.reuse.software/badge/github.com/cloudoperators/netapp-monitoring-operations)](https://api.reuse.software/info/github.com/cloudoperators/netapp-monitoring-operations)
-
 # netapp-monitoring-operations
 
-## About this project
+A Helm chart that deploys NetApp (and related storage) Prometheus alerting rules as
+`PrometheusRule` resources, plus a `PodMonitor` that scrapes the NetApp Harvest
+poller pods.
 
-A Helm chart that deploys NetApp-focused PrometheusRule resources (plus optional forge rule groups) from versioned alert files. PodMonitor that scrapes NetApp Harvest poller pods for metrics ingestion into Prometheus.
+## Overview
 
-## Requirements and Setup
+The chart renders one `PrometheusRule` per alert file under `storage-alerts/` and a
+single `PodMonitor` for metric collection. Every rule group and every individual
+alert can be toggled on or off through `values.yaml`, so you can tailor the alert
+set to your environment without editing the rule files.
 
-*Insert a short description what is required to get your project running...*
+Covered components:
 
-## Support, Feedback, Contributing
+- **NetApp** — volume, aggregate, cluster, disk, LUN, network, NVDimm, and EMS
+  alerts, plus a large set of EMS-derived event alerts (`netapp_test_alerts.yaml`).
+- **Brocade** — switch error alerts. *(forge project — disabled by default)*
+- **PowerScale** — error alerts. *(forge project — disabled by default)*
+- **Pure Storage** — error alerts. *(forge project — disabled by default)*
+- **Kubernetes** — PVC usage alerts. *(forge project — disabled by default)*
+- **Harvest** — poller scrape-health alerts.
 
-This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/cloudoperators/netapp-monitoring-operations/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
+> **Scope note:** the Brocade, PowerScale, Pure Storage, and PVC usage rule groups
+> belong to the **forge** project and are **not** part of the sci scope, so they are
+> shipped **disabled by default**. Enable them by setting the relevant
+> `prometheusRules.ruleGroups.*` keys to `true`.
 
-## Security / Disclosure
-If you find any bug that may be a security problem, please follow our instructions at [in our security policy](https://github.com/cloudoperators/netapp-monitoring-operations/security/policy) on how to report it. Please do not create GitHub issues for security-related doubts or problems.
+## Prerequisites
 
-## Code of Conduct
+- Helm 3+
+- A Prometheus Operator deployment providing the `PrometheusRule` and `PodMonitor`
+  CRDs (`monitoring.coreos.com/v1`).
+- A Prometheus instance whose `ruleSelector` / `podMonitorSelector` matches the
+  `labels` configured in `values.yaml` (default `plugin: storage-metrics-product`).
 
-We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone. By participating in this project, you agree to abide by its [Code of Conduct](https://github.com/SAP/.github/blob/main/CODE_OF_CONDUCT.md) at all times.
+## Installation
 
-## Licensing
+```bash
+helm install netapp-monitoring-operations ./charts
+```
 
-Copyright 2026 SAP SE or an SAP affiliate company and netapp-monitoring-operations contributors. Please see our [LICENSE](LICENSE) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/cloudoperators/netapp-monitoring-operations).
+Resources are created in the **release namespace** (`.Release.Namespace`). Use
+`-n <namespace>` to control where they land:
+
+```bash
+helm install netapp-monitoring-operations ./charts -n storage-product
+```
+
+## Resource Naming
+
+| Resource | Name |
+|---|---|
+| `PrometheusRule` | `<release>-<alert-file>` (e.g. `t-netapp-volume-alerts`) |
+| `PodMonitor` | `<release>-harvest-pod-monitor` |
+
+Both resources are created in `.Release.Namespace`.
+
+## Configuration
+
+### PrometheusRules
+
+| Parameter | Description | Default |
+|---|---|---|
+| `prometheusRules.create` | Render the `PrometheusRule` resources | `true` |
+| `prometheusRules.labels` | Labels applied to every `PrometheusRule`. `plugin` must match the Prometheus `ruleSelector`. | `plugin: storage-metrics-product` |
+| `prometheusRules.annotations` | Annotations applied to every `PrometheusRule`. Falls back to `prometheus.io/alert: "true"` when unset. | `{}` |
+| `prometheusRules.ruleGroups` | Map of `<fileKey>: true\|false` to enable/disable a whole alert file (one toggle per file). Must be a map; set to `{}` to enable all files. | NetApp + Harvest files `true`; Brocade/PowerScale/PureStorage/PVC (forge) `false` |
+| `prometheusRules.commonLabels.support_group` | `support_group` label applied to every alert. | `storage` |
+| `prometheusRules.commonLabels.team` | `team` label applied to every alert. | `sci-storage` |
+
+### PodMonitor
+
+| Parameter | Description | Default |
+|---|---|---|
+| `podMonitor.labels` | Labels applied to the `PodMonitor`. `plugin` must match the Prometheus `podMonitorSelector`. | `plugin: storage-metrics-product` |
+| `podMonitor.targetNamespaces` | Namespace(s) where the target pods run. **Required.** | `[storage-product]` |
+| `podMonitor.selectorMatchLabels` | Pod labels that uniquely select the target pods. **Required.** | `ccloud/service: netapp-monitoring` |
+| `podMonitor.port` | Container port name to scrape. | `metrics` |
+| `podMonitor.path` | Metrics path. | `/metrics` |
+| `podMonitor.scheme` | Scrape scheme. | `http` |
+| `podMonitor.scrapeInterval` | Scrape interval. | `15s` |
+| `podMonitor.jobLabel` | Pod label key whose value becomes the Prometheus `job` label. | `ccloud/service` |
+| `podMonitor.relabelings` | Additional target relabelings. | `[]` |
+| `podMonitor.additionalMetricRelabelings` | Metric relabelings appended after the `netapp_cluster` mapping. | `[]` |
+
+### Required values and guards
+
+- `podMonitor.targetNamespaces` and `podMonitor.selectorMatchLabels` are
+  **required** — rendering fails with a clear message if either is unset, so the
+  chart never produces a `PodMonitor` that selects all pods/namespaces.
+- `prometheusRules.commonLabels.support_group` / `team` are **optional** and fall
+  back to `storage` / `sci-storage` when `commonLabels` is omitted.
+
+## Enabling / disabling alerts
+
+Each alert file has a single on/off toggle (one key per file). Disable a whole
+file by setting its key to `false`:
+
+```yaml
+prometheusRules:
+  ruleGroups:
+    pvcUsageAlerts: false
+    netappEmsAlerts: false
+```
+
+The key is the camelCase form of the file name
+(e.g. `brocade-error-alerts.yaml` → `brocadeErrorAlerts`,
+`netapp_ems_alerts.yaml` → `netappEmsAlerts`).
+
+When a file is disabled it renders as `groups: []` and produces an empty (but
+valid) `PrometheusRule`.
+
+## Chart Structure
+
+```
+charts/
+├── Chart.yaml
+├── values.yaml
+├── templates/
+│   ├── _helpers.tpl
+│   ├── pod-monitor.yaml
+│   └── storage-prometheusrules.yaml
+└── storage-alerts/
+    ├── brocade-error-alerts.yaml
+    ├── harvest-poller-alerts.yaml
+    ├── netapp_aggr_alerts.yaml
+    ├── netapp_cluster_alerts.yaml
+    ├── netapp_disk_alerts.yaml
+    ├── netapp_ems_alerts.yaml
+    ├── netapp_lun_alerts.yaml
+    ├── netapp_network_alerts.yaml
+    ├── netapp_nvdimm_alerts.yaml
+    ├── netapp_test_alerts.yaml
+    ├── netapp_volume_alerts.yaml
+    ├── powerscale-error-alerts.yaml
+    ├── purestorage-error-alerts.yaml
+    └── pvc-usage-alerts.yaml
+```
+
+## Maintainers
+
+| Name |
+|---|
+| Ganesh Kugulakrishnan |
+| Chandrakanth Renduchintala |

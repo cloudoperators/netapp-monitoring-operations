@@ -9,6 +9,8 @@ spec:
   version: 1.0.0
   displayName: NetApp Monitoring operations bundle
   description: Operations bundle for the NetApp storage backend
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/netapp-monitoring-operations/refs/heads/main/README.md
+  icon: https://raw.githubusercontent.com/cloudoperators/netapp-monitoring-operations/main/charts/netapp-monitoring-operations/kubernetes-logo.png
   helmChart:
     name: netapp-monitoring-operations
     repository: oci://ghcr.io/cloudoperators/netapp-monitoring-operations/charts
