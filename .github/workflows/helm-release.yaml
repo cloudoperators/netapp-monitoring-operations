@@ -24,8 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - chartDir: charts/controlplane-operations
-            chartName: controlplane-operations
+          - chartDir: charts/netapp-monitoring-operations
+            chartName: netapp-monitoring-operations
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
