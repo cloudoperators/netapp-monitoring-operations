@@ -374,7 +374,7 @@ groups:
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
       - alert: LinkErrorsDetected
-        expr: last_over_time(ems_events{message="netif.linkErrors"}[5m]) == 1
+        expr: last_over_time(ems_events{message="netif.linkerrors"}[5m]) == 1
         for: 5m
         labels:
           severity: warning
@@ -476,7 +476,7 @@ groups:
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
       - alert: ModuleError
-        expr: last_over_time(ems_events{message="ses.status.ModuleError"}[5m]) == 1
+        expr: last_over_time(ems_events{message="ses.status.Moduleerror"}[5m]) == 1
         for: 5m
         labels:
           severity: critical
@@ -647,7 +647,7 @@ groups:
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
       - alert: VifmgrStartupFailoverError
-        expr: last_over_time(ems_events{message="callhome.vifmgr.startup.failover.err"}[5m]) == 1
+        expr: last_over_time(ems_events{message="vifmgr.startup.failover.err"}[5m]) == 1
         for: 5m
         labels:
           severity: warning
@@ -1321,7 +1321,7 @@ groups:
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
       - alert: UncorEccError
-        expr: last_over_time(ems_events{message="netif.uncorEccError"}[5m]) == 1
+        expr: last_over_time(ems_events{message="netif.uncorEccerror"}[5m]) == 1
         for: 5m
         labels:
           severity: critical
@@ -1474,7 +1474,7 @@ groups:
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
       - alert: diskioMediumError
-        expr: last_over_time(ems_events{message="disk.ioMediumError"}[5m]) == 1
+        expr: last_over_time(ems_events{message="disk.ioMediumerror"}[5m]) == 1
         for: 5m
         labels:
           severity: info

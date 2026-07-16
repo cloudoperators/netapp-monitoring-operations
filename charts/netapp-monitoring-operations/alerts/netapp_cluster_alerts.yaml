@@ -2,6 +2,29 @@
 # SPDX-License-Identifier: Apache-2.0
 {{- if ne (.Values.prometheusRules.ruleGroups.netappClusterAlerts | toString) "false" }}
 groups:
+  - name: netapp_cluster_recording
+    interval: 1m
+    rules:
+      - record: upgrademgr_update_pausedErr_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="upgrademgr.update.pausedErr"}[2m])
+          )
+      - record: upgrademgr_update_resumed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="upgrademgr.update.resumed"}[2m])
+          )
+      - record: upgrademgr_update_pausedErr_persistent
+        expr: |
+          (
+            upgrademgr_update_pausedErr_trigger
+            or
+            upgrademgr_update_pausedErr_persistent
+          )
+          unless
+          upgrademgr_update_resumed_trigger
+
   - name: netapp_cluster_alerts
     rules:
       - alert: ClusterSwitchPortCRCerrors
@@ -49,20 +72,20 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-      - alert: OntapUpgradePauseEvent
-        expr: (ems_events{message="upgrademgr.update.pausedErr"})
-        for: 5m
+      - alert: UpgrademgrUpdatePausedErr
+        expr: upgrademgr_update_pausedErr_persistent == 1
+        for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster_switch
         annotations:
-          summary: ONTAP upgrade paused due to error (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            The automated cluster update has been paused due to an error.
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+          summary: '🟡 Upgrade paused due to error on {{ "{{ $labels.node }}" }}'
+          description: >
+            'The automated upgrade on node {{ "{{ $labels.node }}" }} (Cluster:
+            {{ "{{ $labels.netapp_cluster }}" }}) has been paused due to an error. The
+            alert resolves when the event "upgrademgr.update.resumed" is detected.'
 {{- else }}
 groups: []
 {{- end }}

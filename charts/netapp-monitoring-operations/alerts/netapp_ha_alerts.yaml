@@ -1,0 +1,442 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- if ne (.Values.prometheusRules.ruleGroups.netappHaAlerts | toString) "false" }}
+groups:
+  - name: cf_fsm_takeoverOfPartnerDisabled_final
+    interval: 1m
+    rules:
+      - record: cf_fsm_takeoverOfPartnerDisabled_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, partner) (
+            max_over_time(ems_events{message="cf.fsm.takeoverOfPartnerDisabled"}[2m])
+          )
+      - record: cf_fsm_takeoverOfPartnerEnabled_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, partner) (
+            max_over_time(ems_events{message="cf.fsm.takeoverOfPartnerEnabled"}[2m])
+          )
+      - record: cf_fsm_takeoverOfPartnerDisabled_persistent
+        expr: |
+          (
+            cf_fsm_takeoverOfPartnerDisabled_trigger
+            or
+            cf_fsm_takeoverOfPartnerDisabled_persistent
+          )
+          unless
+          cf_fsm_takeoverOfPartnerEnabled_trigger
+
+  - name: cf_fsm_takeoverOfPartnerDisabled_alerts
+    rules:
+      - alert: CfFsmTakeoverOfPartnerDisabled
+        expr: cf_fsm_takeoverOfPartnerDisabled_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Takeover of partner {{ "{{ $labels.partner }}" }} disabled'
+          description: >
+            'On node {{ "{{ $labels.node }}" }}, takeover of its partner {{ "{{ $labels.partner }}" }}
+            has been disabled. This compromises high availability. The alert resolves when
+            the event "cf.fsm.takeoverOfPartnerEnabled" is detected.'
+
+  - name: cf_fsm_takeoverByPartnerDisabled_final
+    interval: 1m
+    rules:
+      - record: cf_fsm_takeoverByPartnerDisabled_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, partner) (
+            max_over_time(ems_events{message="cf.fsm.takeoverByPartnerDisabled"}[2m])
+          )
+      - record: cf_fsm_takeoverByPartnerEnabled_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, partner) (
+            max_over_time(ems_events{message="cf.fsm.takeoverByPartnerEnabled"}[2m])
+          )
+      - record: cf_fsm_takeoverByPartnerDisabled_persistent
+        expr: |
+          (
+            cf_fsm_takeoverByPartnerDisabled_trigger
+            or
+            cf_fsm_takeoverByPartnerDisabled_persistent
+          )
+          unless
+          cf_fsm_takeoverByPartnerEnabled_trigger
+
+  - name: cf_fsm_takeoverByPartnerDisabled_alerts
+    rules:
+      - alert: CfFsmTakeoverByPartnerDisabled
+        expr: cf_fsm_takeoverByPartnerDisabled_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Takeover by partner {{ "{{ $labels.partner }}" }} disabled'
+          description: >
+            'Takeover of node {{ "{{ $labels.node }}" }} by its partner {{ "{{ $labels.partner }}" }}
+            has been disabled. This compromises high availability. The alert resolves when
+            the event "cf.fsm.takeoverByPartnerEnabled" is detected.'
+
+  - name: callhome_reboot_takeover_final
+    interval: 1m
+    rules:
+      - record: callhome_reboot_takeover_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="callhome.reboot.takeover"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: callhome_reboot_takeover_persistent
+        expr: |
+          (
+            callhome_reboot_takeover_trigger
+            or
+            callhome_reboot_takeover_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+  - name: callhome_reboot_takeover_alerts
+    rules:
+      - alert: CallhomeRebootTakeover
+        expr: callhome_reboot_takeover_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Node {{ "{{ $labels.node }}" }} taken over due to reboot'
+          description: >
+            'Node {{ "{{ $labels.node }}" }} has taken over its partner due to a
+            reboot. The alert resolves when the event "sfo.giveback.complete" is detected.'
+
+  - name: clam_node_ooq_final
+    interval: 1m
+    rules:
+      - record: clam_node_ooq_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="clam.node.ooq"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="clam.node.inq"}[2m])
+          )
+      - record: clam_node_ooq_persistent
+        expr: |
+          (
+            clam_node_ooq_trigger
+            or
+            clam_node_ooq_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+  - name: clam_node_ooq_alerts
+    rules:
+      - alert: ClamNodeOoq
+        expr: clam_node_ooq_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Node {{ "{{ $labels.node }}" }} is out of quorum'
+          description: >
+            'Node {{ "{{ $labels.node }}" }} is out of quorum (OOQ), indicating a Cluster
+            state issue. The alert resolves when the event "sfo.giveback.complete" is detected.'
+
+  - name: callhome_partner_down_final
+    interval: 1m
+    rules:
+      - record: callhome_partner_down_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="callhome.partner.down"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: callhome_partner_down_persistent
+        expr: |
+          (
+            callhome_partner_down_trigger
+            or
+            callhome_partner_down_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+  - name: callhome_partner_down_alerts
+    rules:
+      - alert: CallhomePartnerDown
+        expr: callhome_partner_down_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Partner node of {{ "{{ $labels.node }}" }} is down'
+          description: >
+            'The partner node of {{ "{{ $labels.node }}" }} is down, triggering a takeover.
+            The alert resolves when the event "sfo.giveback.complete" is detected.'
+
+  - name: callhome_sfo_takeover_final
+    interval: 1m
+    rules:
+      - record: callhome_sfo_takeover_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="callhome.sfo.takeover"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: callhome_sfo_takeover_persistent
+        expr: |
+          (
+            callhome_sfo_takeover_trigger
+            or
+            callhome_sfo_takeover_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+  - name: callhome_sfo_takeover_alerts
+    rules:
+      - alert: CallhomeSfoTakeover
+        expr: callhome_sfo_takeover_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ha
+        annotations:
+          summary: '🔴 SFO takeover occurred on {{ "{{ $labels.node }}" }}'
+          description: >
+            'A Storage Failover (SFO) takeover has occurred on node {{ "{{ $labels.node }}" }}.
+            The alert resolves when the event "sfo.giveback.complete" is detected.'
+
+  - name: sfo_PartialGiveback_final
+    interval: 1m
+    rules:
+      - record: sfo_PartialGiveback_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="sfo.PartialGiveback"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: sfo_PartialGiveback_persistent
+        expr: |
+          (
+            sfo_PartialGiveback_trigger
+            or
+            sfo_PartialGiveback_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+  - name: sfo_PartialGiveback_alerts
+    rules:
+      - alert: SfoPartialGiveback
+        expr: sfo_PartialGiveback_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ha
+        annotations:
+          summary: '🟡 Partial giveback occurred on {{ "{{ $labels.node }}" }}'
+          description: >
+            'A partial giveback has occurred on node {{ "{{ $labels.node }}" }}. Not all
+            resources may have been returned. The alert resolves when the event
+            "sfo.giveback.complete" is detected.'
+
+  - name: cf_rsrc_takeoverOpFail_final
+    interval: 1m
+    rules:
+      - record: cf_rsrc_takeoverOpFail_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="cf.rsrc.takeoverOpFail"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: cf_rsrc_takeoverOpFail_persistent
+        expr: |
+          (
+            cf_rsrc_takeoverOpFail_trigger
+            or
+            cf_rsrc_takeoverOpFail_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+  - name: cf_rsrc_takeoverOpFail_alerts
+    rules:
+      - alert: CfRsrcTakeoverOpFail
+        expr: cf_rsrc_takeoverOpFail_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Resource takeover operation failed on {{ "{{ $labels.node }}" }}'
+          description: >
+            'A resource takeover operation has failed on node {{ "{{ $labels.node }}" }}.
+            The alert resolves when the event "sfo.giveback.complete" is detected.'
+
+  - name: ha_giveback_aggrOnlineFailed_final
+    interval: 1m
+    rules:
+      - record: ha_giveback_aggrOnlineFailed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, aggregate) (
+            max_over_time(ems_events{message="ha.giveback.aggrOnlineFailed"}[2m])
+          )
+      - record: raid_vol_state_online_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, aggregate) (
+            max_over_time(ems_events{message="raid.vol.state.online"}[2m])
+          )
+      - record: ha_giveback_aggrOnlineFailed_persistent
+        expr: |
+          (
+            ha_giveback_aggrOnlineFailed_trigger
+            or
+            ha_giveback_aggrOnlineFailed_persistent
+          )
+          unless
+          raid_vol_state_online_trigger
+
+  - name: ha_giveback_aggrOnlineFailed_alerts
+    rules:
+      - alert: HaGivebackAggrOnlineFailed
+        expr: ha_giveback_aggrOnlineFailed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Failed to bring aggregate {{ "{{ $labels.aggregate }}" }} online during giveback'
+          description: >
+            'During a giveback operation on node {{ "{{ $labels.node }}" }}, aggregate
+            {{ "{{ $labels.aggregate }}" }} failed to come online. Manual intervention may
+            be required. The alert resolves when the aggregate is back online
+            ("raid.vol.state.online").'
+
+  - name: cf_fm_notkoverClusterDisable_final
+    interval: 1m
+    rules:
+      - record: cf_fm_notkoverClusterDisable_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="cf.fm.notkoverClusterDisable"}[2m])
+          )
+      - record: cf_fsm_takeoverOfPartnerEnabled_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="cf.fsm.takeoverOfPartnerEnabled"}[2m])
+          )
+      - record: cf_fm_notkoverClusterDisable_persistent
+        expr: |
+          (
+            cf_fm_notkoverClusterDisable_trigger
+            or
+            cf_fm_notkoverClusterDisable_persistent
+          )
+          unless
+          cf_fsm_takeoverOfPartnerEnabled_trigger
+
+  - name: cf_fm_notkoverClusterDisable_alerts
+    rules:
+      - alert: CfFmNotkoverClusterDisable
+        expr: cf_fm_notkoverClusterDisable_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Cluster Failover disabled on {{ "{{ $labels.node }}" }}'
+          description: >
+            'Cluster failover takeover has been disabled on node {{ "{{ $labels.node }}" }}.
+            High availability is compromised. The alert resolves when takeover is
+            re-enabled ("cf.fsm.takeoverOfPartnerEnabled").'
+
+  - name: clam_partner_halting_final
+    interval: 1m
+    rules:
+      - record: clam_partner_halting_trigger
+        expr: |
+          max by (netapp_cluster, datacenter, cluster_uuid, node) (
+            max_over_time(ems_events{message="clam.partner.halting"}[2m])
+          )
+      - record: cf_fm_takeover_Complete_trigger
+        expr: |
+          max by (netapp_cluster, datacenter, cluster_uuid, node) (
+            max_over_time(ems_events{message="cf.fm.takeoverComplete"}[2m])
+          )
+      - record: clam_partner_halting_persistent
+        expr: |
+          (
+            clam_partner_halting_trigger
+            or
+            clam_partner_halting_persistent
+          )
+          unless
+          cf_fm_takeover_Complete_trigger
+
+  - name: clam_partner_halting_alerts
+    rules:
+      - alert: ClamPartnerHalting
+        expr: clam_partner_halting_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Partner node is halting on {{ "{{ $labels.node }}" }}'
+          description: >
+            'The partner node of {{ "{{ $labels.node }}" }} is halting.
+            This will likely lead to a takeover. The alert resolves when
+            the event "cf.fm.takeoverComplete" is detected.'
+{{- else }}
+groups: []
+{{- end }}
