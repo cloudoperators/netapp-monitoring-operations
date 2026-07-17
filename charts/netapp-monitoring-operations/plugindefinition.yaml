@@ -1,9 +1,5 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and cobaltcore-dev contributors
-# SPDX-License-Identifier: Apache-2.0
-
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
 metadata:
@@ -25,7 +21,7 @@ spec:
       default: true
       type: bool
     - name: prometheusRules.labels
-      description: Labels applied to every PrometheusRule; `plugin` must match the Prometheus ruleSelector
+      description: Labels applied to every PrometheusRule; must match the Prometheus ruleSelector (key `prometheus`, value `storage` or `storage-metrics-product`) so the rules are picked up
       required: false
       type: map
     - name: prometheusRules.ruleGroups
@@ -37,7 +33,7 @@ spec:
       required: false
       type: map
     - name: podMonitor.labels
-      description: Labels applied to the PodMonitor; `plugin` must match the Prometheus podMonitorSelector
+      description: Labels applied to the PodMonitor; must match the Prometheus podMonitorSelector (key `prometheus`, value `storage` or `storage-metrics-product`) so the resource is picked up
       required: false
       type: map
     - name: podMonitor.targetNamespaces

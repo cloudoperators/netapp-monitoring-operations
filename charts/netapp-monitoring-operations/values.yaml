@@ -3,8 +3,9 @@
 
 prometheusRules:
   create: true
-  # Labels applied to every PrometheusRule's metadata. `prometheus` must match the
-  # Prometheus ruleSelector so the rules are picked up; add any extra labels here.
+  # Labels applied to every PrometheusRule's metadata. These must match your
+  # Prometheus ruleSelector so the rules are picked up; set whatever key/value the
+  # selector expects (here `prometheus: storage`) and add any extra labels below.
   labels:
     prometheus: storage
   # Enable or disable an entire alert file. One toggle per file; the key is the
@@ -32,8 +33,9 @@ prometheusRules:
 
 podMonitor:
   scrapeInterval: 15s
-  # Labels applied to the PodMonitor metadata. `prometheus` must match the Prometheus
-  # podMonitorSelector so the resource is picked up; add any extra labels here.
+  # Labels applied to the PodMonitor metadata. These must match your Prometheus
+  # podMonitorSelector so the resource is picked up; set whatever key/value the
+  # selector expects (here `prometheus: storage`) and add any extra labels below.
   labels:
     prometheus: storage
   # Namespace(s) where your target deployment pods run.
