@@ -2,58 +2,474 @@
 # SPDX-License-Identifier: Apache-2.0
 {{- if ne (.Values.prometheusRules.ruleGroups.netappVolumeAlerts | toString) "false" }}
 groups:
-  - name: netapp_volume_alerts
+  - name: vol_inode_nearly_full_final
+    interval: 1m
     rules:
-      - alert: VolumeInodeNearlyFull
-        expr: (avg_over_time(volume_inode_used_percent {volume!~".*root.*",volume!~".*dummy.*"}[15m])) > 90
-        for: 5m
-        labels:
-          severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_volume
-        annotations:
-          summary: Inode nearly full (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            Inode used > 90%
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Volume: {{ "{{" }} $labels.volume {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+      - record: vol_inode_nearly_full_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (round(volume_inode_used_percent * 100)) > 90
+      - record: vol_inode_nearly_full_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (round(volume_inode_used_percent * 100)) < 90
+      - record: vol_inode_nearly_full_persistent
+        expr: |
+          (
+            vol_inode_nearly_full_trigger
+            or
+            vol_inode_nearly_full_persistent
+          )
+          unless
+          vol_inode_nearly_full_ok_trigger
 
-      - alert: VolumeInodeFull
-        expr: (avg_over_time(volume_inode_used_percent {volume!~".*root.*",volume!~".*dummy.*"}[15m])) > 95
-        for: 5m
+  - name: vol_inode_nearly_full_alerts
+    rules:
+      - alert: VolInodeNearlyFull
+        expr: vol_inode_nearly_full_persistent == 1
+        for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: Inode full (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            Inode used > 95%
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Volume: {{ "{{" }} $labels.volume {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+          summary: '🟡 Volume {{ "{{ $labels.volume }}" }} inodes are nearly full'
+          description: >
+            'Volume {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }},
+            cluster {{ "{{ $labels.netapp_cluster }}" }} inodes are nearly full:
+            {{ "{{" }} $value {{ "}}" }}.'
 
-      - alert: SnapmirrorLagTime
-        expr: (last_over_time(snapmirror_lag_time[1h])) > 172800
-        for: 5m
+  - name: vol_inode_full_final
+    interval: 1m
+    rules:
+      - record: vol_inode_full_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (round(volume_inode_used_percent * 100)) > 95
+      - record: vol_inode_full_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (round(volume_inode_used_percent * 100)) < 95
+      - record: vol_inode_full_persistent
+        expr: |
+          (
+            vol_inode_full_trigger
+            or
+            vol_inode_full_persistent
+          )
+          unless
+          vol_inode_full_ok_trigger
+
+  - name: vol_inode_full_alerts
+    rules:
+      - alert: VolInodeFull
+        expr: vol_inode_full_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🟡 Volume {{ "{{ $labels.volume }}" }} inodes are full'
+          description: >
+            'Volume {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }},
+            cluster {{ "{{ $labels.netapp_cluster }}" }} inodes are full:
+            {{ "{{" }} $value {{ "}}" }}.'
+
+  - name: snapmirror_lag_time_final
+    interval: 1m
+    rules:
+      - record: snapmirror_lag_time_trigger
+        expr: |
+          max by (netapp_cluster, relationship_id) (last_over_time(snapmirror_lag_time[1h])) > 172800
+      - record: snapmirror_lag_time_ok_trigger
+        expr: |
+          max by (netapp_cluster, relationship_id) (last_over_time(snapmirror_lag_time[1h])) < 172800
+      - record: snapmirror_lag_time_persistent
+        expr: |
+          (
+            snapmirror_lag_time_trigger
+            or
+            snapmirror_lag_time_persistent
+          )
+          unless
+          snapmirror_lag_time_ok_trigger
+
+  - name: snapmirror_lag_time_alerts
+    rules:
+      - alert: SnapMirrorLagTime
+        expr: snapmirror_lag_time_persistent == 1
+        for: 2m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: Snapmirror Lag time (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            Snapmirror Lag time > 48h
+          summary: '🔴 Snapmirror Lag time (instance {{ "{{" }} $labels.instance {{ "}}" }})'
+          description: >
+            'Snapmirror Lag time > 48h
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Source volume: {{ "{{" }} $labels.source_volume {{ "}}" }}, Source vserver: {{ "{{" }} $labels.source_vserver {{ "}}" }},
             Destination volume: {{ "{{" }} $labels.destination_volume {{ "}}" }}, Destination vserver: {{ "{{" }} $labels.destination_vserver {{ "}}" }},
             Relationship ID: {{ "{{" }} $labels.relationship_id {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}'
 
+  - name: ecs_volume_nearly_full_final
+    interval: 1m
+    rules:
+      - record: ecs_volume_nearly_full_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (avg_over_time(volume_space_physical_used_percent{volume!~".*root.*",volume!~".*dummy.*",netapp_cluster=~"hec.*"}[15m])) > 80
+      - record: ecs_volume_nearly_full_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (avg_over_time(volume_space_physical_used_percent{volume!~".*root.*",volume!~".*dummy.*",netapp_cluster=~"hec.*"}[15m])) < 80
+      - record: ecs_volume_nearly_full_persistent
+        expr: |
+          (
+            ecs_volume_nearly_full_trigger
+            or
+            ecs_volume_nearly_full_persistent
+          )
+          unless
+          ecs_volume_nearly_full_ok_trigger
+
+  - name: ecs_volume_nearly_full_alerts
+    rules:
+      - alert: ECSVolumeNearlyFull
+        expr: ecs_volume_nearly_full_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🟡 Volume {{ "{{ $labels.volume }}" }} is nearly full'
+          description: >
+            'Volume {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }},
+            cluster {{ "{{ $labels.netapp_cluster }}" }} is nearly full:
+            {{ "{{" }} $value {{ "}}" }}.'
+
+  - name: ecs_volume_full_final
+    interval: 1m
+    rules:
+      - record: ecs_volume_full_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (avg_over_time(volume_space_physical_used_percent{volume!~".*root.*",volume!~".*dummy.*",netapp_cluster=~"hec.*"}[15m])) > 90
+      - record: ecs_volume_full_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (avg_over_time(volume_space_physical_used_percent{volume!~".*root.*",volume!~".*dummy.*",netapp_cluster=~"hec.*"}[15m])) < 90
+      - record: ecs_volume_full_persistent
+        expr: |
+          (
+            ecs_volume_full_trigger
+            or
+            ecs_volume_full_persistent
+          )
+          unless
+          ecs_volume_full_ok_trigger
+
+  - name: ecs_volume_full_alerts
+    rules:
+      - alert: ECSVolumeFull
+        expr: ecs_volume_full_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🔴 Volume {{ "{{ $labels.volume }}" }} is full'
+          description: >
+            'Volume {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }},
+            cluster {{ "{{ $labels.netapp_cluster }}" }} is full:
+            {{ "{{" }} $value {{ "}}" }}.'
+
+  - name: snapmirror_migrate_srcErr_final
+    interval: 1m
+    rules:
+      - record: snapmirror_migrate_srcErr_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+            max_over_time(ems_events{message="snapmirror.migrate.srcErr"}[2m])
+          )
+      - record: snapmirror_migrate_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+            max_over_time(ems_events{message="snapmirror.migrate.complete"}[2m])
+          )
+      - record: snapmirror_migrate_srcErr_persistent
+        expr: |
+          (
+            snapmirror_migrate_srcErr_trigger
+            or
+            snapmirror_migrate_srcErr_persistent
+          )
+          unless
+          snapmirror_migrate_complete_trigger
+
+  - name: snapmirror_migrate_srcErr_alerts
+    rules:
+      - alert: SnapmirrorMigrateSrcErr
+        expr: snapmirror_migrate_srcErr_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🔴 SnapMirror migration source error'
+          description: >
+            'SnapMirror migration from {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }}
+            to {{ "{{ $labels.dstfiler }}" }}:{{ "{{ $labels.dstpath }}" }} failed with a
+            source error. The alert resolves when the event "snapmirror.migrate.complete"
+            is detected.'
+
+  - name: snapmirror_migrate_dstErr_final
+    interval: 1m
+    rules:
+      - record: snapmirror_migrate_dstErr_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+            max_over_time(ems_events{message="snapmirror.migrate.dstErr"}[2m])
+          )
+      - record: snapmirror_migrate_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+            max_over_time(ems_events{message="snapmirror.migrate.complete"}[2m])
+          )
+      - record: snapmirror_migrate_dstErr_persistent
+        expr: |
+          (
+            snapmirror_migrate_dstErr_trigger
+            or
+            snapmirror_migrate_dstErr_persistent
+          )
+          unless
+          snapmirror_migrate_complete_trigger
+
+  - name: snapmirror_migrate_dstErr_alerts
+    rules:
+      - alert: SnapmirrorMigrateDstErr
+        expr: snapmirror_migrate_dstErr_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🔴 SnapMirror migration destination error'
+          description: >
+            'SnapMirror migration from {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }}
+            to {{ "{{ $labels.dstfiler }}" }}:{{ "{{ $labels.dstpath }}" }} failed with a
+            destination error. The alert resolves when the event
+            "snapmirror.migrate.complete" is detected.'
+
+  - name: replication_dst_resync_failed_final
+    interval: 1m
+    rules:
+      - record: replication_dst_resync_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstpath, rtype) (
+            max_over_time(ems_events{message="replication.dst.resync.failed"}[2m])
+          )
+      - record: replication_dst_resync_success_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstpath, rtype) (
+            max_over_time(ems_events{message="replication.dst.resync.success"}[2m])
+          )
+      - record: replication_dst_resync_failed_persistent
+        expr: |
+          (
+            replication_dst_resync_failed_trigger
+            or
+            replication_dst_resync_failed_persistent
+          )
+          unless
+          replication_dst_resync_success_trigger
+
+  - name: replication_dst_resync_failed_alerts
+    rules:
+      - alert: ReplicationDstResyncFailed
+        expr: replication_dst_resync_failed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🔴 Replication resync failed'
+          description: >
+            'Replication resync from {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }}
+            to destination {{ "{{ $labels.dstpath }}" }} has failed. The alert resolves
+            when the event "replication.dst.resync.success" is detected.'
+
+  - name: wafl_snap_create_skip_reason_final
+    interval: 1m
+    rules:
+      - record: wafl_snap_create_skip_reason_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vol, volident, name, snapname) (
+            max_over_time(ems_events{message="wafl.snap.create.skip.reason"}[2m])
+          )
+      - record: wafl_snap_create_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vol, volident, name, snapname) (
+            max_over_time(ems_events{message="wafl.snap.create"}[2m])
+          )
+      - record: wafl_snap_create_skip_reason_persistent
+        expr: |
+          (
+            wafl_snap_create_skip_reason_trigger
+            or
+            wafl_snap_create_skip_reason_persistent
+          )
+          unless
+          wafl_snap_create_trigger
+
+  - name: mgmt_snapmir_resync_fail_final
+    interval: 1m
+    rules:
+      - record: mgmt_snapmir_resync_fail_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcpath, dstpath) (
+            max_over_time(ems_events{message="mgmt.snapmir.resync.fail"}[2m])
+          )
+      - record: replication_dst_resync_success_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcpath, dstpath) (
+            max_over_time(ems_events{message="replication.dst.resync.success"}[2m])
+          )
+      - record: mgmt_snapmir_resync_fail_persistent
+        expr: |
+          (
+            mgmt_snapmir_resync_fail_trigger
+            or
+            mgmt_snapmir_resync_fail_persistent
+          )
+          unless
+          replication_dst_resync_success_trigger
+
+  - name: mgmt_snapmir_resync_fail_alerts
+    rules:
+      - alert: MgmtSnapmirResyncFail
+        expr: mgmt_snapmir_resync_fail_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🔴 SnapMirror resync failed'
+          description: >
+            'SnapMirror resync from source {{ "{{ $labels.srcpath }}" }} to destination
+            {{ "{{ $labels.dstpath }}" }} has failed. The alert resolves when the event
+            "replication.dst.resync.success" is detected.'
+
+  - name: wafl_vol_setting_in_nvfailed_state_final
+    interval: 1m
+    rules:
+      - record: wafl_vol_setting_in_nvfailed_state_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, vol) (
+            max_over_time(ems_events{message="wafl.vol.setting.in.nvfailed.state"}[2m])
+          )
+      - record: wafl_vvol_online_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, vol) (
+            max_over_time(ems_events{message="wafl.vvol.online"}[2m])
+          )
+      - record: wafl_vol_setting_in_nvfailed_state_persistent
+        expr: |
+          (
+            wafl_vol_setting_in_nvfailed_state_trigger
+            or
+            wafl_vol_setting_in_nvfailed_state_persistent
+          )
+          unless
+          wafl_vvol_online_trigger
+
+  - name: wafl_vol_setting_in_nvfailed_state_alerts
+    rules:
+      - alert: WaflVolSettingInNvfailedState
+        expr: wafl_vol_setting_in_nvfailed_state_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🔴 Volume {{ "{{ $labels.vol }}" }} is in nvfailed state'
+          description: >
+            'Volume {{ "{{ $labels.vol }}" }} on node {{ "{{ $labels.node }}" }} is in an
+            nvfailed state. This is a critical condition indicating potential data loss.
+            The alert resolves when the volume is back online ("wafl.vvol.online").'
+
+  - name: token_vol_max_count_reached_final
+    interval: 1m
+    rules:
+      - record: token_vol_max_count_reached_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, volume_name) (
+            max_over_time(ems_events{message="token.vol.max.count.reached"}[2m])
+          )
+      - record: token_vol_cache_cleared_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, volume_name) (
+            max_over_time(ems_events{message="token.vol.cache.cleared"}[2m])
+          )
+      - record: token_vol_max_count_reached_persistent
+        expr: |
+          (
+            token_vol_max_count_reached_trigger
+            or
+            token_vol_max_count_reached_persistent
+          )
+          unless
+          token_vol_cache_cleared_trigger
+
+  - name: token_vol_max_count_reached_alerts
+    rules:
+      - alert: TokenVolMaxCountReached
+        expr: token_vol_max_count_reached_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🟡 Max token count reached for volume {{ "{{ $labels.volume_name }}" }}'
+          description: >
+            'The maximum token count has been reached for volume {{ "{{ $labels.volume_name }}" }}
+            on node {{ "{{ $labels.node }}" }}. This can impact performance or specific
+            operations. The alert resolves when the token cache is cleared
+            ("token.vol.cache.cleared").'
+
+  - name: wafl_snap_create_skip_reason_alerts
+    rules:
+      - alert: WaflSnapCreateSkipReason
+        expr: wafl_snap_create_skip_reason_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🟡 Snapshot creation skipped for volume {{ "{{ $labels.vol }}" }}'
+          description: >
+            'Snapshot creation for volume {{ "{{ $labels.vol }}" }} (ID: {{ "{{ $labels.volident }}" }})
+            on node {{ "{{ $labels.node }}" }} was skipped. The alert resolves when the
+            event "wafl.snap.create" is detected for this volume.'
+
+  - name: wafl_invalidate_fh
+    rules:
       - alert: WAFLVolInvalidateFH
         expr: (ems_events{message="wafl.vol.invalidate.fh"})
         for: 5m
@@ -69,21 +485,8 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-      - alert: WAFLVolInNVFailedState
-        expr: (ems_events{message="wafl.vol.setting.in.nvfailed.state"})
-        for: 5m
-        labels:
-          severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_volume
-        annotations:
-          summary: Volume marked as in-nvfailed-state (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            Volume {{ "{{" }} $labels.volume {{ "}}" }} is marked as in-nvfailed-state
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
-
+  - name: wafl_maxdir_size_warning
+    rules:
       - alert: WAFLDirSizeMaxWarning
         expr: (ems_events{message="wafl.dir.size.max.warning"})
         for: 5m
