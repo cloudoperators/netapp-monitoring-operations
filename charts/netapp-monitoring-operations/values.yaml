@@ -3,10 +3,10 @@
 
 prometheusRules:
   create: true
-  # Labels applied to every PrometheusRule's metadata. `plugin` must match the
+  # Labels applied to every PrometheusRule's metadata. `prometheus` must match the
   # Prometheus ruleSelector so the rules are picked up; add any extra labels here.
   labels:
-    plugin: storage-metrics-product
+    prometheus: storage
   # Enable or disable an entire alert file. One toggle per file; the key is the
   # camelCase form of the file name. Set a key to false to drop that file's rules.
   ruleGroups:
@@ -16,10 +16,12 @@ prometheusRules:
     netappClusterAlerts: true      # netapp_cluster_alerts.yaml
     netappDiskAlerts: true         # netapp_disk_alerts.yaml
     netappEmsAlerts: true          # netapp_ems_alerts.yaml
+    netappHaAlerts: true           # netapp_ha_alerts.yaml
+    netappHwAlerts: true           # netapp_hw_alerts.yaml
     netappLunAlerts: true          # netapp_lun_alerts.yaml
+    netappMiscAlerts: true         # netapp_misc_alerts.yaml
     netappNetworkAlerts: true      # netapp_network_alerts.yaml
     netappNvdimmAlerts: true       # netapp_nvdimm_alerts.yaml
-    netappTestAlerts: true         # netapp_test_alerts.yaml
     netappVolumeAlerts: true       # netapp_volume_alerts.yaml
     powerscaleErrorAlerts: false   # powerscale-error-alerts.yaml (forge, not in sci scope)
     purestorageErrorAlerts: false  # purestorage-error-alerts.yaml (forge, not in sci scope)
@@ -30,10 +32,10 @@ prometheusRules:
 
 podMonitor:
   scrapeInterval: 15s
-  # Labels applied to the PodMonitor metadata. `plugin` must match the Prometheus
+  # Labels applied to the PodMonitor metadata. `prometheus` must match the Prometheus
   # podMonitorSelector so the resource is picked up; add any extra labels here.
   labels:
-    plugin: storage-metrics-product
+    prometheus: storage
   # Namespace(s) where your target deployment pods run.
   targetNamespaces:
     - storage-product

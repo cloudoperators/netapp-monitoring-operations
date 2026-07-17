@@ -2,8 +2,83 @@
 # SPDX-License-Identifier: Apache-2.0
 {{- if ne (.Values.prometheusRules.ruleGroups.netappNvdimmAlerts | toString) "false" }}
 groups:
+  - name: netapp_nvdimm_recording
+    interval: 1m
+    rules:
+      # nvmem battery capacity low (event-based, stateful)
+      - record: nvmem_battery_capacity_low_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvmem.battery.capacity.low"}[2m])
+          )
+      - record: nvmem_battery_capacity_normal_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvmem.battery.capacity.normal"}[2m])
+          )
+      - record: nvmem_battery_capacity_low_persistent
+        expr: |
+          (
+            nvmem_battery_capacity_low_trigger
+            or
+            nvmem_battery_capacity_low_persistent
+          )
+          unless
+          nvmem_battery_capacity_normal_trigger
+
+      # nvram battery capacity low warn (event-based, stateful)
+      - record: nvram_battery_capacity_low_warn_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvram.battery.capacity.low.warn"}[2m])
+          )
+      - record: nvram_battery_capacity_normal_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvram.battery.capacity.normal"}[2m])
+          )
+      - record: nvram_battery_capacity_low_warn_persistent
+        expr: |
+          (
+            nvram_battery_capacity_low_warn_trigger
+            or
+            nvram_battery_capacity_low_warn_persistent
+          )
+          unless
+          nvram_battery_capacity_normal_trigger
+
   - name: netapp_nvdimm_alerts
     rules:
+      - alert: NvmemBatteryCapacityLow
+        expr: nvmem_battery_capacity_low_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_nvdimm
+        annotations:
+          summary: '🟡 NVMEM Battery Capacity Low on {{ "{{ $labels.name }}" }}'
+          description: >
+            'The NVMEM battery capacity is low on node {{ "{{ $labels.name }}" }}
+            (Cluster: {{ "{{ $labels.netapp_cluster }}" }}). The alert resolves when the
+            event "nvmem.battery.capacity.normal" is detected.'
+
+      - alert: NvramBatteryCapacityLowWarn
+        expr: nvram_battery_capacity_low_warn_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_nvdimm
+        annotations:
+          summary: '🟡 NVRAM Battery Capacity Low on {{ "{{ $labels.node }}" }}'
+          description: >
+            'The NVRAM battery capacity is low on node {{ "{{ $labels.node }}" }}
+            (Cluster: {{ "{{ $labels.netapp_cluster }}" }}). The alert resolves when the
+            event "nvram.battery.capacity.normal" is detected.'
+
       - alert: NVdimmECCErrors
         expr: (ems_events{message="callhome.nvdimm.cecc"})
         for: 5m
@@ -16,36 +91,6 @@ groups:
           summary: This event occurs when excessive correctable ECC memory errors are reported by the NVDIMM (instance {{ "{{" }} $labels.instance {{ "}}" }})
           description: |
             NVDIMM ECC Errors
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
-
-      - alert: NVMemBatteryLow
-        expr: (ems_events{message="monitor.nvmembattery.warninglow"})
-        for: 5m
-        labels:
-          severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_nvdimm
-        annotations:
-          summary: This message occurs when the NVMEM battery charge is low (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            NVMEM Battery Low
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
-
-      - alert: NVRAMBatteryLow
-        expr: (ems_events{message="monitor.nvramLowBattery.notice"})
-        for: 5m
-        labels:
-          severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_nvdimm
-        annotations:
-          summary: This message occurs when the NVRAM battery is dangerously low (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            NVRAM Battery Low
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 {{- else }}

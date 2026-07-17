@@ -2,22 +2,41 @@
 # SPDX-License-Identifier: Apache-2.0
 {{- if ne (.Values.prometheusRules.ruleGroups.netappLunAlerts | toString) "false" }}
 groups:
+  - name: netapp_lun_recording
+    interval: 1m
+    rules:
+      # lun offline (metric-based, stateful)
+      - record: lun_offline_trigger
+        expr: |
+          max by (netapp_cluster, node, lun) (lun_labels{state!="online"}) == 1
+      - record: lun_offline_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, lun) (lun_labels{state="online"}) == 1
+      - record: lun_offline_persistent
+        expr: |
+          (
+            lun_offline_trigger
+            or
+            lun_offline_persistent
+          )
+          unless
+          lun_offline_ok_trigger
+
   - name: netapp_lun_alerts
     rules:
-      - alert: LUNOffline
-        expr: (ems_events{message="LUN.offline"})
-        for: 5m
+      - alert: LunOffline
+        expr: lun_offline_persistent == 1
+        for: 2m
         labels:
-          severity: info
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_lun
         annotations:
-          summary: This message occurs when a LUN is brought offline manually (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            NetApp CRC Errors
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+          summary: '🟡 LUN {{ "{{ $labels.lun }}" }} is offline'
+          description: >
+            'LUN {{ "{{ $labels.lun }}" }} on node {{ "{{ $labels.node }}" }},
+            cluster {{ "{{ $labels.netapp_cluster }}" }} is offline.'
 
       - alert: LUNNVfail
         expr: (ems_events{message="LUN.nvfail.vol.proc.complete"})

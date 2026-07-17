@@ -2,22 +2,109 @@
 # SPDX-License-Identifier: Apache-2.0
 {{- if ne (.Values.prometheusRules.ruleGroups.netappDiskAlerts | toString) "false" }}
 groups:
+  - name: netapp_disk_recording
+    interval: 1m
+    rules:
+      # disk failed (metric-based, stateful)
+      - record: disk_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, disk) (disk_labels{failed="true"}) == 1
+      - record: disk_failed_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, disk) (disk_labels{failed="false"}) == 1
+      - record: disk_failed_persistent
+        expr: |
+          (
+            disk_failed_trigger
+            or
+            disk_failed_persistent
+          )
+          unless
+          disk_failed_ok_trigger
+
+      # disk unassigned (metric-based, stateful)
+      - record: disk_unassigned_trigger
+        expr: |
+          max by (netapp_cluster, node, disk) (disk_labels{container_type="unknown"}) == 1
+      - record: disk_unassigned_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, disk) (disk_labels{container_type!="unknown"}) == 1
+      - record: disk_unassigned_persistent
+        expr: |
+          (
+            disk_unassigned_trigger
+            or
+            disk_unassigned_persistent
+          )
+          unless
+          disk_unassigned_ok_trigger
+
+      # raid spare disk missing (event-based, stateful)
+      - record: raid_config_spare_disk_missing_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, shelf, bay, name) (
+            max_over_time(ems_events{message="raid.config.spare.disk.missing"}[2m])
+          )
+      - record: raid_disk_inserted_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, shelf, bay, name) (
+            max_over_time(ems_events{message="raid.disk.inserted"}[2m])
+          )
+      - record: raid_config_spare_disk_missing_persistent
+        expr: |
+          (
+            raid_config_spare_disk_missing_trigger
+            or
+            raid_config_spare_disk_missing_persistent
+          )
+          unless
+          raid_disk_inserted_trigger
+
   - name: netapp_disk_alerts
     rules:
-      - alert: DiskDriveFailed
-        expr: (ems_events{message="monitor.raid.brokenDisk"})
-        for: 5m
+      - alert: DiskFailed
+        expr: disk_failed_persistent == 1
+        for: 2m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
-          summary: Disk drive failed (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            Disk drive failed
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+          summary: '🔴 Disk {{ "{{ $labels.disk }}" }} has failed'
+          description: >
+            'Disk {{ "{{ $labels.disk }}" }} on node {{ "{{ $labels.node }}" }},
+            cluster {{ "{{ $labels.netapp_cluster }}" }} has failed.'
+
+      - alert: DiskUnassigned
+        expr: disk_unassigned_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🟡 Disk {{ "{{ $labels.disk }}" }} is unassigned'
+          description: >
+            'Disk {{ "{{ $labels.disk }}" }} on node {{ "{{ $labels.node }}" }},
+            cluster {{ "{{ $labels.netapp_cluster }}" }} is unassigned.'
+
+      - alert: RaidConfigSpareDiskMissing
+        expr: raid_config_spare_disk_missing_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🔴 Spare disk missing'
+          description: >
+            'A required spare disk is missing at shelf {{ "{{ $labels.shelf }}" }}, bay
+            {{ "{{ $labels.bay }}" }} on node {{ "{{ $labels.node }}" }}. This reduces
+            data protection. The alert resolves when the event "raid.disk.inserted"
+            is detected.'
 
       - alert: DiskExceedsAvgIOLatencyThreshold
         expr: (ems_events{message="shm.threshold.highIOLatency"})
@@ -31,21 +118,6 @@ groups:
           summary: Disk exceeds the average IO latency threshold (instance {{ "{{" }} $labels.instance {{ "}}" }})
           description: |
             Disk exceeds the average IO latency threshold
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
-
-      - alert: UnassignedDisk
-        expr: (ems_events{message="unowned.disk.reminder"})
-        for: 5m
-        labels:
-          severity: info
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_disk
-        annotations:
-          summary: Unassigned disk detected (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            Unassigned disks present in system
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 {{- else }}

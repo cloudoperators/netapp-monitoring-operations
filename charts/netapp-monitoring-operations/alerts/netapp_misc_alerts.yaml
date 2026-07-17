@@ -1,0 +1,166 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- if ne (.Values.prometheusRules.ruleGroups.netappMiscAlerts | toString) "false" }}
+groups:
+  - name: km_run_external_setup_final
+    interval: 1m
+    rules:
+      - record: km_run_external_setup_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="km.run.external.setup"}[2m])
+          )
+      - record: km_keyserver_available_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="km.keyserver.available"}[2m])
+          )
+      - record: km_run_external_setup_persistent
+        expr: |
+          (
+            km_run_external_setup_trigger
+            or
+            km_run_external_setup_persistent
+          )
+          unless
+          km_keyserver_available_trigger
+
+  - name: km_run_external_setup_alerts
+    rules:
+      - alert: KmRunExternalSetup
+        expr: km_run_external_setup_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_misc
+        annotations:
+          summary: '🟡 External Key Manager setup required on {{ "{{ $labels.node }}" }}'
+          description: >
+            'External Key Manager (KMIP) setup is required on node {{ "{{ $labels.node }}" }}.
+            The alert resolves when the event "km.keyserver.available" is detected.'
+
+  - name: km_keyserver_notavailable_final
+    interval: 1m
+    rules:
+      - record: km_keyserver_notavailable_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vserver, address) (
+            max_over_time(ems_events{message="km.keyserver.notavailable"}[2m])
+          )
+      - record: km_keyserver_available_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vserver, address) (
+            max_over_time(ems_events{message="km.keyserver.available"}[2m])
+          )
+      - record: km_keyserver_notavailable_persistent
+        expr: |
+          (
+            km_keyserver_notavailable_trigger
+            or
+            km_keyserver_notavailable_persistent
+          )
+          unless
+          km_keyserver_available_trigger
+
+  - name: km_keyserver_notavailable_alerts
+    rules:
+      - alert: KmKeyserverNotavailable
+        expr: km_keyserver_notavailable_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_misc
+        annotations:
+          summary: '🔴 Key server not available on {{ "{{ $labels.node }}" }}'
+          description: >
+            'The external key server (KMIP) with address {{ "{{ $labels.address }}" }}
+            is not available to node {{ "{{ $labels.node }}" }}.
+            This can impact access to encrypted data. The alert resolves when the event
+            "km.keyserver.available" is detected.'
+
+  - name: km_keyretrieve_failed_final
+    interval: 1m
+    rules:
+      - record: km_keyretrieve_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="km.keyretrieve.failed"}[2m])
+          )
+      - record: km_keyserver_available_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="km.keyserver.available"}[2m])
+          )
+      - record: km_keyretrieve_failed_persistent
+        expr: |
+          (
+            km_keyretrieve_failed_trigger
+            or
+            km_keyretrieve_failed_persistent
+          )
+          unless
+          km_keyserver_available_trigger
+
+  - name: km_keyretrieve_failed_alerts
+    rules:
+      - alert: KmKeyretrieveFailed
+        expr: km_keyretrieve_failed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_misc
+        annotations:
+          summary: '🔴 Key retrieval failed on {{ "{{ $labels.node }}" }}'
+          description: >
+            'Failed to retrieve encryption keys from the external key server on node
+            {{ "{{ $labels.node }}" }}. The alert resolves when the event
+            "km.keyserver.available" is detected.'
+
+  - name: vserver_stop_failed_final
+    interval: 1m
+    rules:
+      - record: vserver_stop_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, svm, svm_uuid) (
+            max_over_time(ems_events{message="vserver.stop.failed"}[2m])
+          )
+      - record: vserver_stop_succeeded_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, svm, svm_uuid) (
+            max_over_time(ems_events{message="vserver.stop.succeeded"}[2m])
+          )
+      - record: vserver_stop_failed_persistent
+        expr: |
+          (
+            vserver_stop_failed_trigger
+            or
+            vserver_stop_failed_persistent
+          )
+          unless
+          vserver_stop_succeeded_trigger
+
+  - name: vserver_stop_failed_alerts
+    rules:
+      - alert: VServerStopFailed
+        expr: vserver_stop_failed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_misc
+        annotations:
+          summary: '🔴 Failed to stop SVM {{ "{{ $labels.svm }}" }}'
+          description: >
+            'An attempt to stop SVM {{ "{{ $labels.svm }}" }} (UUID: {{ "{{ $labels.svm_uuid }}" }})
+            on Cluster {{ "{{ $labels.netapp_cluster }}" }} has failed. The alert resolves
+            when the stop operation eventually succeeds ("vserver.stop.succeeded").'
+{{- else }}
+groups: []
+{{- end }}

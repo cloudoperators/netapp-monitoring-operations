@@ -1,0 +1,394 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- if ne (.Values.prometheusRules.ruleGroups.netappHwAlerts | toString) "false" }}
+groups:
+  - name: netapp_hw_recording
+    interval: 1m
+    rules:
+      # fan failed
+      - record: monitor_fan_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, fan) (
+            max_over_time(ems_events{message="monitor.fan.failed"}[2m])
+          )
+      - record: monitor_fan_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, fan) (
+            max_over_time(ems_events{message="monitor.fan.ok"}[2m])
+          )
+      - record: monitor_fan_failed_persistent
+        expr: |
+          (
+            monitor_fan_failed_trigger
+            or
+            monitor_fan_failed_persistent
+          )
+          unless
+          monitor_fan_ok_trigger
+
+      # chassis power supply degraded
+      - record: monitor_chassisPowerSupply_degraded_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, ps_number) (
+            max_over_time(ems_events{message="monitor.chassisPowerSupply.degraded"}[2m])
+          )
+      - record: monitor_chassisPowerSupply_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, ps_number) (
+            max_over_time(ems_events{message="monitor.chassisPowerSupply.ok"}[2m])
+          )
+      - record: monitor_chassisPowerSupply_degraded_persistent
+        expr: |
+          (
+            monitor_chassisPowerSupply_degraded_trigger
+            or
+            monitor_chassisPowerSupply_degraded_persistent
+          )
+          unless
+          monitor_chassisPowerSupply_ok_trigger
+
+      # ses status current error / warning (share ses_status_currentInfo_trigger as resolver)
+      - record: ses_status_currentError_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, prodChannel, psNumber) (
+            max_over_time(ems_events{message="ses.status.currentError"}[2m])
+          )
+      - record: ses_status_currentInfo_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, prodChannel, psNumber) (
+            max_over_time(ems_events{message="ses.status.currentInfo"}[2m])
+          )
+      - record: ses_status_currentError_persistent
+        expr: |
+          (
+            ses_status_currentError_trigger
+            or
+            ses_status_currentError_persistent
+          )
+          unless
+          ses_status_currentInfo_trigger
+      - record: ses_status_currentWarning_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, prodChannel, psNumber) (
+            max_over_time(ems_events{message="ses.status.currentWarning"}[2m])
+          )
+      - record: ses_status_currentWarning_persistent
+        expr: |
+          (
+            ses_status_currentWarning_trigger
+            or
+            ses_status_currentWarning_persistent
+          )
+          unless
+          ses_status_currentInfo_trigger
+
+      # shelf fault
+      - record: monitor_shelf_fault_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, channel) (
+            max_over_time(ems_events{message="monitor.shelf.fault"}[2m])
+          )
+      - record: monitor_shelf_fault_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, channel) (
+            max_over_time(ems_events{message="monitor.shelf.fault.ok"}[2m])
+          )
+      - record: monitor_shelf_fault_persistent
+        expr: |
+          (
+            monitor_shelf_fault_trigger
+            or
+            monitor_shelf_fault_persistent
+          )
+          unless
+          monitor_shelf_fault_ok_trigger
+
+      # nvram low batteries
+      - record: monitor_nvramLowBatteries_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="monitor.nvramLowBatteries"}[2m])
+          )
+      - record: nvram_battery_capacity_normal_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvram.battery.capacity.normal"}[2m])
+          )
+      - record: monitor_nvramLowBatteries_persistent
+        expr: |
+          (
+            monitor_nvramLowBatteries_trigger
+            or
+            monitor_nvramLowBatteries_persistent
+          )
+          unless
+          nvram_battery_capacity_normal_trigger
+
+      # nvmem battery warning low
+      - record: monitor_nvmembattery_warninglow_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="monitor.nvmembattery.warninglow"}[2m])
+          )
+      - record: nvmem_battery_capacity_normal_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvmem.battery.capacity.normal"}[2m])
+          )
+      - record: monitor_nvmembattery_warninglow_persistent
+        expr: |
+          (
+            monitor_nvmembattery_warninglow_trigger
+            or
+            monitor_nvmembattery_warninglow_persistent
+          )
+          unless
+          nvmem_battery_capacity_normal_trigger
+
+      # ses multipath request error
+      - record: ses_multipath_ReqError_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="ses.multipath.ReqError"}[2m])
+          )
+      - record: shelf_config_tompha_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="shelf.config.tompha"}[2m])
+          )
+      - record: ses_multipath_ReqError_persistent
+        expr: |
+          (
+            ses_multipath_ReqError_trigger
+            or
+            ses_multipath_ReqError_persistent
+          )
+          unless
+          shelf_config_tompha_trigger
+
+      # global status critical
+      - record: monitor_globalStatus_critical_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="monitor.globalStatus.critical"}[2m])
+          )
+      - record: monitor_globalStatus_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="monitor.globalStatus.ok"}[2m])
+          )
+      - record: monitor_globalStatus_critical_persistent
+        expr: |
+          (
+            monitor_globalStatus_critical_trigger
+            or
+            monitor_globalStatus_critical_persistent
+          )
+          unless
+          monitor_globalStatus_ok_trigger
+
+      # service processor not configured / heartbeat stopped (share sp_heartbeat_resumed_trigger)
+      - record: sp_notConfigured_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="sp.notConfigured"}[2m])
+          )
+      - record: sp_heartbeat_resumed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="sp.heartbeat.resumed"}[2m])
+          )
+      - record: sp_notConfigured_persistent
+        expr: |
+          (
+            sp_notConfigured_trigger
+            or
+            sp_notConfigured_persistent
+          )
+          unless
+          sp_heartbeat_resumed_trigger
+      - record: callhome_sp_hbt_stopped_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="callhome.sp.hbt.stopped"}[2m])
+          )
+      - record: callhome_sp_hbt_stopped_persistent
+        expr: |
+          (
+            callhome_sp_hbt_stopped_trigger
+            or
+            callhome_sp_hbt_stopped_persistent
+          )
+          unless
+          sp_heartbeat_resumed_trigger
+
+  - name: netapp_hw_alerts
+    rules:
+      - alert: MonitorFanFailed
+        expr: monitor_fan_failed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_hw
+        annotations:
+          summary: '🔴 Fan failed on {{ "{{ $labels.name }}" }}'
+          description: >
+            'A fan has failed on node {{ "{{ $labels.name }}" }} (Cluster:
+            {{ "{{ $labels.netapp_cluster }}" }}). This could lead to overheating.
+            The alert resolves when the event "monitor.fan.ok" is detected.'
+
+      - alert: MonitorChassisPowerSupplyDegraded
+        expr: monitor_chassisPowerSupply_degraded_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_hw
+        annotations:
+          summary: '🔴 Chassis Power Supply Degraded on {{ "{{ $labels.name }}" }}'
+          description: >
+            'A chassis power supply is degraded on node {{ "{{ $labels.name }}" }}
+            (Cluster: {{ "{{ $labels.netapp_cluster }}" }}). The alert resolves when the
+            event "monitor.chassisPowerSupply.ok" is detected.'
+
+      - alert: SesStatusCurrentError
+        expr: ses_status_currentError_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_hw
+        annotations:
+          summary: '🔴 SES Element Error on {{ "{{ $labels.node }}" }}'
+          description: >
+            'A SES (SCSI Enclosure Services) element on channel {{ "{{ $labels.prodChannel }}" }}
+            on node {{ "{{ $labels.node }}" }} is reporting an error. The alert resolves
+            when the event "ses.status.currentInfo" is detected.'
+
+      - alert: SesStatusCurrentWarning
+        expr: ses_status_currentWarning_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_hw
+        annotations:
+          summary: '🟡 SES Element Warning on {{ "{{ $labels.node }}" }}'
+          description: >
+            'A SES (SCSI Enclosure Services) element on channel {{ "{{ $labels.prodChannel }}" }}
+            on node {{ "{{ $labels.node }}" }} is reporting a warning. The alert resolves
+            when the event "ses.status.currentInfo" is detected.'
+
+      - alert: monitorShelfFault
+        expr: monitor_shelf_fault_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_hw
+        annotations:
+          summary: '🔴 Shelf fault detected on {{ "{{ $labels.node }}" }}'
+          description: >
+            'A shelf fault has been detected on node {{ "{{ $labels.node }}" }},
+            channel {{ "{{ $labels.channel }}" }}. This could impact disk accessibility.
+            The alert resolves when the event "monitor.shelf.fault.ok" is detected.'
+
+      - alert: MonitorNvramLowBatteries
+        expr: monitor_nvramLowBatteries_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_hw
+        annotations:
+          summary: '🟡 NVRAM batteries are low on {{ "{{ $labels.node }}" }}'
+          description: >
+            'The NVRAM batteries are low on node {{ "{{ $labels.node }}" }}. The alert
+            resolves when the event "nvram.battery.capacity.normal" is detected.'
+
+      - alert: MonitorNvmembatteryWarninglow
+        expr: monitor_nvmembattery_warninglow_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_hw
+        annotations:
+          summary: '🟡 NVMEM battery warning on {{ "{{ $labels.node }}" }}'
+          description: >
+            'The NVMEM battery is reporting a low capacity warning on node {{ "{{ $labels.node }}" }}.
+            The alert resolves when the event "nvmem.battery.capacity.normal" is detected.'
+
+      - alert: SesMultipathReqError
+        expr: ses_multipath_ReqError_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_hw
+        annotations:
+          summary: '🟡 SES multipath request error on {{ "{{ $labels.node }}" }}'
+          description: >
+            'A SES (SCSI Enclosure Services) multipath request error occurred on node
+            {{ "{{ $labels.node }}" }}. This indicates a problem with shelf connectivity.
+            The alert resolves when the shelf configuration is healthy
+            ("shelf.config.tompha").'
+
+      - alert: MonitorGlobalStatusCritical
+        expr: monitor_globalStatus_critical_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_hw
+        annotations:
+          summary: '🔴 Global system status is CRITICAL on {{ "{{ $labels.node }}" }}'
+          description: >
+            'The overall health status of node {{ "{{ $labels.node }}" }} is reported as
+            CRITICAL. This indicates a severe, system-wide issue that requires immediate
+            attention. The alert resolves when the status returns to OK
+            ("monitor.globalStatus.ok").'
+
+      - alert: SpNotConfigured
+        expr: sp_notConfigured_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_hw
+        annotations:
+          summary: '🟡 Service Processor not configured on {{ "{{ $labels.node }}" }}'
+          description: >
+            'The Service Processor (SP) or Baseboard Management Controller (BMC) on
+            node {{ "{{ $labels.node }}" }} (Cluster: {{ "{{ $labels.netapp_cluster }}" }})
+            is not configured. Remote management may be unavailable. The alert resolves
+            when the SP heartbeat resumes ("sp.heartbeat.resumed").'
+
+      - alert: CallhomeSpHbtStopped
+        expr: callhome_sp_hbt_stopped_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_hw
+        annotations:
+          summary: '🔴 Service Processor heartbeat stopped on {{ "{{ $labels.node }}" }}'
+          description: >
+            'The heartbeat from the Service Processor (SP/BMC) on node {{ "{{ $labels.node }}" }}
+            (Cluster: {{ "{{ $labels.netapp_cluster }}" }}) has stopped. The SP might be offline
+            or unresponsive. The alert resolves when the SP heartbeat resumes ("sp.heartbeat.resumed").'
+{{- else }}
+groups: []
+{{- end }}

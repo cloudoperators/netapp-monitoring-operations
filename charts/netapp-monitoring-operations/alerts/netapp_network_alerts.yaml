@@ -2,22 +2,192 @@
 # SPDX-License-Identifier: Apache-2.0
 {{- if ne (.Values.prometheusRules.ruleGroups.netappNetworkAlerts | toString) "false" }}
 groups:
+  - name: netapp_network_recording
+    interval: 1m
+    rules:
+      # interface link errors (metric-based, stateful)
+      - record: interface_link_errors_trigger
+        expr: |
+          max by (netapp_cluster, node, nic) (max_over_time (nic_rx_errors[5m]) or max_over_time (nic_tx_errors[5m])) > 0
+      - record: interface_link_errors_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, nic) (max_over_time (nic_rx_errors[5m]) and max_over_time (nic_tx_errors[5m])) == 0
+      - record: interface_link_errors_persistent
+        expr: |
+          (
+            interface_link_errors_trigger
+            or
+            interface_link_errors_persistent
+          )
+          unless
+          interface_link_errors_ok_trigger
+
+      # lif not at home (metric-based, stateful)
+      - record: lif_not_at_home_trigger
+        expr: |
+          max by (netapp_cluster, node, lif) (lif_labels{is_home="false"}) == 1
+      - record: lif_at_home_trigger
+        expr: |
+          max by (netapp_cluster, node, lif) (lif_labels{is_home="true"}) == 1
+      - record: lif_not_at_home_persistent
+        expr: |
+          (
+            lif_not_at_home_trigger
+            or
+            lif_not_at_home_persistent
+          )
+          unless
+          lif_at_home_trigger
+
+      # vifmgr cluscheck lifdown (event-based, stateful)
+      - record: vifmgr_cluscheck_lifdown_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, lif_name, name) (
+            max_over_time(ems_events{message="vifmgr.cluscheck.lifdown"}[2m])
+          )
+      - record: vifmgr_cluscheck_lifup_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, lif_name, name) (
+            max_over_time(ems_events{message="vifmgr.cluscheck.lifup"}[2m])
+          )
+      - record: vifmgr_cluscheck_lifdown_persistent
+        expr: |
+          (
+            vifmgr_cluscheck_lifdown_trigger
+            or
+            vifmgr_cluscheck_lifdown_persistent
+          )
+          unless
+          vifmgr_cluscheck_lifup_trigger
+
+      # vifmgr portdown (event-based, stateful)
+      - record: vifmgr_portdown_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, nodename, portname) (
+            max_over_time(ems_events{message="vifmgr.portdown"}[2m])
+          )
+      - record: vifmgr_portup_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, nodename, portname) (
+            max_over_time(ems_events{message="vifmgr.portup"}[2m])
+          )
+      - record: vifmgr_portdown_persistent
+        expr: |
+          (
+            vifmgr_portdown_trigger
+            or
+            vifmgr_portdown_persistent
+          )
+          unless
+          vifmgr_portup_trigger
+
+      # vifmgr lifs overcapacity (event-based, stateful)
+      - record: vifmgr_lifs_overcapacity_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="vifmgr.lifs.overcapacity"}[2m])
+          )
+      - record: vifmgr_lifdeleted_byadmin_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="vifmgr.lifdeleted.byadmin"}[2m])
+          )
+      - record: vifmgr_lifs_overcapacity_persistent
+        expr: |
+          (
+            vifmgr_lifs_overcapacity_trigger
+            or
+            vifmgr_lifs_overcapacity_persistent
+          )
+          unless
+          vifmgr_lifdeleted_byadmin_trigger
+
+      # vifmgr lifdown noports (event-based, stateful)
+      - record: vifmgr_lifdown_noports_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vifname) (
+            max_over_time(ems_events{message="vifmgr.lifdown.noports"}[2m])
+          )
+      - record: vifmgr_lifbeinghosted_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vifname) (
+            max_over_time(ems_events{message="vifmgr.lifbeinghosted"}[2m])
+          )
+      - record: vifmgr_lifdown_noports_persistent
+        expr: |
+          (
+            vifmgr_lifdown_noports_trigger
+            or
+            vifmgr_lifdown_noports_persistent
+          )
+          unless
+          vifmgr_lifbeinghosted_trigger
+
+      # ntp server count (metric-based, stateful)
+      - record: ntp_server_trigger
+        expr: |
+          count by (netapp_cluster) (ntpserver_labels) < 3
+      - record: ntp_server_ok_trigger
+        expr: |
+          count by (netapp_cluster) (ntpserver_labels) == 3
+      - record: ntp_server_persistent
+        expr: |
+          (
+            ntp_server_trigger
+            or
+            ntp_server_persistent
+          )
+          unless
+          ntp_server_ok_trigger
+
+      # telnet enabled (metric-based, stateful)
+      - record: telnet_disabled_trigger
+        expr: |
+          max by (netapp_cluster) (
+          security_labels{telnet_enabled="false"}) == 1
+      - record: telnet_enabled_trigger
+        expr: |
+          max by (netapp_cluster) (
+          security_labels{telnet_enabled="true"}) == 1
+      - record: telnet_enabled_persistent
+        expr: |
+          (
+            telnet_enabled_trigger
+            or
+            telnet_enabled_persistent
+          )
+          unless
+          telnet_disabled_trigger
+
   - name: netapp_network_alerts
     rules:
-      - alert: NetAppCRCErrors
-        expr: (ems_events{message="netif.linkErrors"})
-        for: 5m
+      - alert: InterfaceLinkErrorsAlert
+        expr: interface_link_errors_persistent == 1
+        for: 2m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_network
         annotations:
-          summary: NetApp CRC Errors (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            NetApp CRC Errors
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+          summary: '🔴 Interface link errors on {{ "{{ $labels.netapp_cluster }}" }}'
+          description: >
+            'Interface link errors on {{ "{{ $labels.netapp_cluster }}" }},
+            node {{ "{{ $labels.node }}" }}, port {{ "{{ $labels.nic }}" }}.'
+
+      - alert: LifNotAtHomeAlert
+        expr: lif_not_at_home_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: '🔴 LIF {{ "{{ $labels.lif }}" }} is not at home'
+          description: >
+            'LIF {{ "{{ $labels.lif }}" }} on node {{ "{{ $labels.node }}" }},
+            cluster {{ "{{ $labels.netapp_cluster }}" }} is not at home.'
 
       - alert: ICInterconnectLinkDown
         expr: (ems_events{message="ic.HAInterconnectLinkDown"})
@@ -34,20 +204,66 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-      - alert: LIFStatusDown
-        expr: (ems_events{message="vifmgr.lifdown.noports"})
-        for: 5m
+      - alert: VifmgrCluscheckLifdown
+        expr: vifmgr_cluscheck_lifdown_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: '🔴 LIF {{ "{{ $labels.lif_name }}" }} is down'
+          description: >
+            'The logical interface (LIF) {{ "{{ $labels.lif_name }}" }} on node
+            {{ "{{ $labels.name }}" }} (Cluster: {{ "{{ $labels.netapp_cluster }}" }}) is
+            down. The alert resolves when the event "vifmgr.cluscheck.lifup" is detected.'
+
+      - alert: VifmgrPortdown
+        expr: vifmgr_portdown_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: '🔴 Port {{ "{{ $labels.portname }}" }} on node {{ "{{ $labels.nodename }}" }} is down'
+          description: >
+            'Network port {{ "{{ $labels.portname }}" }} on node {{ "{{ $labels.nodename }}" }}
+            (Cluster: {{ "{{ $labels.netapp_cluster }}" }}) is down. The alert resolves
+            when the event "vifmgr.portup" is detected.'
+
+      - alert: VifmgrLifdownNoports
+        expr: vifmgr_lifdown_noports_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: '🔴 LIF {{ "{{ $labels.vifname }}" }} is down (no available ports)'
+          description: >
+            'The logical interface (LIF) {{ "{{ $labels.vifname }}" }} on node
+            {{ "{{ $labels.node }}" }} is down because no suitable failover ports are
+            available. The alert resolves when the LIF is hosted again
+            ("vifmgr.lifbeinghosted").'
+
+      - alert: VifmgrLifsOvercapacity
+        expr: vifmgr_lifs_overcapacity_persistent == 1
+        for: 2m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_network
         annotations:
-          summary: LIF down - no eligible ports (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            LIF is down
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+          summary: '🟡 LIFs are overcapacity on {{ "{{ $labels.node }}" }}'
+          description: >
+            'The number of logical interfaces (LIFs) on node {{ "{{ $labels.node }}" }}
+            has exceeded the recommended limit. The alert resolves when the event
+            "vifmgr.lifdeleted.byadmin" is detected.'
 
       - alert: NWInterfaceFatalErrorDriver
         expr: (ems_events{message="netif.fatal.err"})
@@ -61,21 +277,6 @@ groups:
           summary: NIC driver fatal error (instance {{ "{{" }} $labels.instance {{ "}}" }})
           description: |
             LIF driver errors
-            VALUE = {{ "{{" }} $value {{ "}}" }}
-            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
-
-      - alert: NWInterfaceFatalErrorHardware
-        expr: (ems_events{message="vifmgr.cluscheck.hwerrors"})
-        for: 5m
-        labels:
-          severity: warning
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_network
-        annotations:
-          summary: NIC hardware error rate high (instance {{ "{{" }} $labels.instance {{ "}}" }})
-          description: |
-            Port is reporting high hardware errors (CRC, alignment, drops)
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
@@ -93,6 +294,34 @@ groups:
             Over-provisioned failover targets: {{ "{{" }} $labels.overamount {{ "}}" }} LIFs may go "down" on node failure
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: NTPServerAlert
+        expr: ntp_server_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: '🟡 Not enough NTP servers on {{ "{{ $labels.netapp_cluster }}" }}'
+          description: >
+            'NTP servers are not configured or reachable on {{ "{{ $labels.netapp_cluster }}" }}
+            Please review cluster configuration and ensure connectivity to the servers is ok.'
+
+      - alert: TelnetEnabled
+        expr: telnet_enabled_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: '🔴 Telnet is enabled on {{ "{{ $labels.netapp_cluster }}" }}'
+          description: >
+            'Telnet is enabled on {{ "{{ $labels.netapp_cluster }}" }}
+            Please disable it immediately!'
 {{- else }}
 groups: []
 {{- end }}
