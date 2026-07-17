@@ -6,15 +6,16 @@ poller pods.
 
 ## Overview
 
-The chart renders one `PrometheusRule` per alert file under `storage-alerts/` and a
+The chart renders one `PrometheusRule` per alert file under `alerts/` and a
 single `PodMonitor` for metric collection. Every rule group and every individual
 alert can be toggled on or off through `values.yaml`, so you can tailor the alert
 set to your environment without editing the rule files.
 
 Covered components:
 
-- **NetApp** — volume, aggregate, cluster, disk, LUN, network, NVDimm, and EMS
-  alerts, plus a large set of EMS-derived event alerts (`netapp_test_alerts.yaml`).
+- **NetApp** — aggregate, cluster, disk, HA (storage failover), hardware, LUN,
+  miscellaneous (key manager / SVM), network, NVDimm, volume, and a large set of
+  EMS-derived event alerts.
 - **Brocade** — switch error alerts. *(forge project — disabled by default)*
 - **PowerScale** — error alerts. *(forge project — disabled by default)*
 - **Pure Storage** — error alerts. *(forge project — disabled by default)*
@@ -32,19 +33,19 @@ Covered components:
 - A Prometheus Operator deployment providing the `PrometheusRule` and `PodMonitor`
   CRDs (`monitoring.coreos.com/v1`).
 - A Prometheus instance whose `ruleSelector` / `podMonitorSelector` matches the
-  `labels` configured in `values.yaml` (default `plugin: storage-metrics-product`).
+  `labels` configured in `values.yaml` (default `prometheus: storage`).
 
 ## Installation
 
 ```bash
-helm install netapp-monitoring-operations ./charts
+helm install netapp-monitoring-operations ./charts/netapp-monitoring-operations
 ```
 
 Resources are created in the **release namespace** (`.Release.Namespace`). Use
 `-n <namespace>` to control where they land:
 
 ```bash
-helm install netapp-monitoring-operations ./charts -n storage-product
+helm install netapp-monitoring-operations ./charts/netapp-monitoring-operations -n storage-product
 ```
 
 ## Resource Naming
@@ -63,7 +64,7 @@ Both resources are created in `.Release.Namespace`.
 | Parameter | Description | Default |
 |---|---|---|
 | `prometheusRules.create` | Render the `PrometheusRule` resources | `true` |
-| `prometheusRules.labels` | Labels applied to every `PrometheusRule`. `plugin` must match the Prometheus `ruleSelector`. | `plugin: storage-metrics-product` |
+| `prometheusRules.labels` | Labels applied to every `PrometheusRule`. `prometheus` must match the Prometheus `ruleSelector`. | `prometheus: storage` |
 | `prometheusRules.annotations` | Annotations applied to every `PrometheusRule`. Falls back to `prometheus.io/alert: "true"` when unset. | `{}` |
 | `prometheusRules.ruleGroups` | Map of `<fileKey>: true\|false` to enable/disable a whole alert file (one toggle per file). Must be a map; set to `{}` to enable all files. | NetApp + Harvest files `true`; Brocade/PowerScale/PureStorage/PVC (forge) `false` |
 | `prometheusRules.commonLabels.support_group` | `support_group` label applied to every alert. | `storage` |
@@ -73,7 +74,7 @@ Both resources are created in `.Release.Namespace`.
 
 | Parameter | Description | Default |
 |---|---|---|
-| `podMonitor.labels` | Labels applied to the `PodMonitor`. `plugin` must match the Prometheus `podMonitorSelector`. | `plugin: storage-metrics-product` |
+| `podMonitor.labels` | Labels applied to the `PodMonitor`. `prometheus` must match the Prometheus `podMonitorSelector`. | `prometheus: storage` |
 | `podMonitor.targetNamespaces` | Namespace(s) where the target pods run. **Required.** | `[storage-product]` |
 | `podMonitor.selectorMatchLabels` | Pod labels that uniquely select the target pods. **Required.** | `ccloud/service: netapp-monitoring` |
 | `podMonitor.port` | Container port name to scrape. | `metrics` |
@@ -114,24 +115,26 @@ valid) `PrometheusRule`.
 ## Chart Structure
 
 ```
-charts/
+charts/netapp-monitoring-operations/
 ├── Chart.yaml
 ├── values.yaml
 ├── templates/
 │   ├── _helpers.tpl
-│   ├── pod-monitor.yaml
-│   └── storage-prometheusrules.yaml
-└── storage-alerts/
+│   ├── alerts.yaml
+│   └── pod-monitor.yaml
+└── alerts/
     ├── brocade-error-alerts.yaml
     ├── harvest-poller-alerts.yaml
     ├── netapp_aggr_alerts.yaml
     ├── netapp_cluster_alerts.yaml
     ├── netapp_disk_alerts.yaml
     ├── netapp_ems_alerts.yaml
+    ├── netapp_ha_alerts.yaml
+    ├── netapp_hw_alerts.yaml
     ├── netapp_lun_alerts.yaml
+    ├── netapp_misc_alerts.yaml
     ├── netapp_network_alerts.yaml
     ├── netapp_nvdimm_alerts.yaml
-    ├── netapp_test_alerts.yaml
     ├── netapp_volume_alerts.yaml
     ├── powerscale-error-alerts.yaml
     ├── purestorage-error-alerts.yaml
