@@ -2,6 +2,20 @@ apiVersion: v1
 entries:
   netapp-monitoring-operations:
   - apiVersion: v2
+    appVersion: 1.0.2
+    created: "2026-07-17T00:56:43.769874955Z"
+    description: Deploys NetApp (and related storage) Prometheus alerting rules as
+      PrometheusRules, plus a PodMonitor that scrapes the NetApp Harvest poller pods.
+    digest: 39ec237f00ee94fac427b91733ac5311334907bcec46a0ee110b1421c84a2c3a
+    maintainers:
+    - name: Ganesh Kugulakrishnan
+    - name: Chandrakanth Renduchintala
+    name: netapp-monitoring-operations
+    type: application
+    urls:
+    - https://github.com/cloudoperators/netapp-monitoring-operations/releases/download/netapp-monitoring-operations-1.0.2/netapp-monitoring-operations-1.0.2.tgz
+    version: 1.0.2
+  - apiVersion: v2
     appVersion: 1.0.1
     created: "2026-07-16T16:09:24.76698299Z"
     description: Deploys NetApp (and related storage) Prometheus alerting rules as
@@ -29,4 +43,4 @@ entries:
     urls:
     - https://github.com/cloudoperators/netapp-monitoring-operations/releases/download/netapp-monitoring-operations-1.0.0/netapp-monitoring-operations-1.0.0.tgz
     version: 1.0.0
-generated: "2026-07-16T16:09:24.766997487Z"
+generated: "2026-07-17T00:56:43.769887208Z"
