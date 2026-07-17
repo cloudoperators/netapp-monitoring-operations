@@ -57,3 +57,24 @@ podMonitor:
   relabelings: []
   # Optional additional metric relabelings appended after netapp_cluster mapping.
   additionalMetricRelabelings: []
+
+# Extra raw manifests rendered verbatim. Provide complete Kubernetes objects as a
+# list; each entry is emitted as-is. Helm template expressions inside the manifest
+# are evaluated (via tpl), so you can reference values like `{{ .Release.Namespace }}`.
+# Example: an owner-info ConfigMap for the Greenhouse owner-info datasource.
+extraManifests: []
+  # - apiVersion: v1
+  #   kind: ConfigMap
+  #   metadata:
+  #     name: owner-of-storage-metrics-product
+  #     namespace: storage-metrics
+  #     labels:
+  #       ccloud/support-group: storage
+  #       ccloud/service: netapp-monitoring
+  #       owner-info-version: "1.0.0"
+  #     annotations:
+  #       ccloud/support-group-datasource: owner-info
+  #   data:
+  #     support-group: storage
+  #     service: netapp-monitoring
+  #     helm-chart-url: https://github.com/cloudoperators/netapp-monitoring-operations

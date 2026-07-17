@@ -3,7 +3,7 @@ kind: PluginDefinition
 metadata:
   name: netapp-monitoring-operations
 spec:
-  version: 1.0.3
+  version: 1.0.4
   displayName: NetApp Monitoring operations bundle
   description: Operations bundle for the NetApp storage backend
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/netapp-monitoring-operations/refs/heads/main/README.md
@@ -11,7 +11,7 @@ spec:
   helmChart:
     name: netapp-monitoring-operations
     repository: oci://ghcr.io/cloudoperators/netapp-monitoring-operations/charts
-    version: 1.0.3
+    version: 1.0.4
   options:
     - name: prometheusRules.create
       description: Create Prometheus alerting rules (PrometheusRule resources)
@@ -40,7 +40,7 @@ spec:
       type: list
     - name: podMonitor.selectorMatchLabels
       description: Pod labels that uniquely select the target poller pods
-      required: true
+      required: false
       type: map
     - name: podMonitor.scrapeInterval
       description: Scrape interval for the PodMonitor
@@ -67,3 +67,7 @@ spec:
       required: false
       default: ccloud/service
       type: string
+    - name: extraManifests
+      description: List of complete Kubernetes manifests rendered verbatim (e.g. an owner-info ConfigMap for the Greenhouse owner-info datasource)
+      required: false
+      type: list

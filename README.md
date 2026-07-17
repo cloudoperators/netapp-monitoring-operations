@@ -76,7 +76,7 @@ Both resources are created in `.Release.Namespace`.
 |---|---|---|
 | `podMonitor.labels` | Labels applied to the `PodMonitor`. `prometheus` must match the Prometheus `podMonitorSelector`. | `prometheus: storage` |
 | `podMonitor.targetNamespaces` | Namespace(s) where the target pods run. **Required.** | `[storage-product]` |
-| `podMonitor.selectorMatchLabels` | Pod labels that uniquely select the target pods. **Required.** | `ccloud/service: netapp-monitoring` |
+| `podMonitor.selectorMatchLabels` | Pod labels that uniquely select the target pods. Optional — when unset the `PodMonitor` selects **all** pods in `targetNamespaces`. | `ccloud/service: netapp-monitoring` |
 | `podMonitor.port` | Container port name to scrape. | `metrics` |
 | `podMonitor.path` | Metrics path. | `/metrics` |
 | `podMonitor.scheme` | Scrape scheme. | `http` |
@@ -87,11 +87,47 @@ Both resources are created in `.Release.Namespace`.
 
 ### Required values and guards
 
-- `podMonitor.targetNamespaces` and `podMonitor.selectorMatchLabels` are
-  **required** — rendering fails with a clear message if either is unset, so the
-  chart never produces a `PodMonitor` that selects all pods/namespaces.
+- `podMonitor.targetNamespaces` is **required** — rendering fails with a clear
+  message if it is unset, so the chart never produces a `PodMonitor` that scrapes
+  all namespaces.
+- `podMonitor.selectorMatchLabels` is **optional**. When omitted the `PodMonitor`
+  has an empty pod selector and matches **all** pods in `targetNamespaces`; set it
+  to uniquely select your target pods (and exclude others such as netapp-harvest).
 - `prometheusRules.commonLabels.support_group` / `team` are **optional** and fall
   back to `storage` / `sci-storage` when `commonLabels` is omitted.
+
+### Extra manifests
+
+Render arbitrary Kubernetes objects alongside the chart's own resources by
+listing them under `extraManifests`. Each entry is emitted verbatim and passed
+through Helm's `tpl`, so template expressions inside the manifest (e.g.
+`{{ .Release.Namespace }}`) are evaluated.
+
+| Parameter | Description | Default |
+|---|---|---|
+| `extraManifests` | List of complete Kubernetes manifests rendered as-is. | `[]` |
+
+A common use is an **owner-info** `ConfigMap` consumed by the Greenhouse
+owner-info datasource:
+
+```yaml
+extraManifests:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: owner-of-storage-metrics-product
+      namespace: storage-metrics
+      labels:
+        ccloud/support-group: storage
+        ccloud/service: netapp-monitoring
+        owner-info-version: "1.0.0"
+      annotations:
+        ccloud/support-group-datasource: owner-info
+    data:
+      support-group: storage
+      service: netapp-monitoring
+      helm-chart-url: https://github.com/cloudoperators/netapp-monitoring-operations
+```
 
 ## Enabling / disabling alerts
 
@@ -121,6 +157,7 @@ charts/netapp-monitoring-operations/
 ├── templates/
 │   ├── _helpers.tpl
 │   ├── alerts.yaml
+│   ├── extra-manifests.yaml
 │   └── pod-monitor.yaml
 └── alerts/
     ├── brocade-error-alerts.yaml
