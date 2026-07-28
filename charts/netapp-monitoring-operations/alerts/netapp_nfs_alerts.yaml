@@ -1,0 +1,34 @@
+groups:
+  - name: nblade_nfsv4_pool_exhaust
+    rules:
+      - alert: NbladeNfsV4PoolExhaust
+        expr: last_over_time(ems_events{message="Nblade.nfsV4PoolExhaust"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_nfs
+        annotations:
+          summary: '🔴 NFSv4 Pool Exhaustion'
+          description: |
+            'Pool {{ "{{ $labels.poolname }}" }} of type {{ "{{ $labels.object_type }}" }} is exhausted.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: nfs_listeners_failure
+    rules:
+      - alert: NFSListenersFailure
+        expr: last_over_time(ems_events{message="mgmt.nfslisteners.failure"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_nfs
+        annotations:
+          summary: '🔴 NFS listeners failure'
+          description: |
+            'NFS listener failure detected. Reason: {{ "{{ $labels.reason }}" }} 
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'

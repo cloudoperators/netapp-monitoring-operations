@@ -1,4 +1,3 @@
-{{- if ne (.Values.prometheusRules.ruleGroups.netappHaAlerts | toString) "false" }}
 groups:
   - name: cf_fsm_takeoverOfPartnerDisabled_final
     interval: 1m
@@ -30,15 +29,16 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_ha
         annotations:
           summary: '🔴 Takeover of partner {{ "{{ $labels.partner }}" }} disabled'
-          description: >
-            'On node {{ "{{ $labels.node }}" }}, takeover of its partner {{ "{{ $labels.partner }}" }}
-            has been disabled. This compromises high availability. The alert resolves when
-            the event "cf.fsm.takeoverOfPartnerEnabled" is detected.'
+          description: |
+            'On node {{ "{{ $labels.node }}" }}, takeover of its partner {{ "{{ $labels.partner }}" }} has been disabled. 
+            This compromises high availability. The alert resolves when the event "cf.fsm.takeoverOfPartnerEnabled" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
   - name: cf_fsm_takeoverByPartnerDisabled_final
     interval: 1m
@@ -70,15 +70,16 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_ha
         annotations:
           summary: '🔴 Takeover by partner {{ "{{ $labels.partner }}" }} disabled'
-          description: >
-            'Takeover of node {{ "{{ $labels.node }}" }} by its partner {{ "{{ $labels.partner }}" }}
-            has been disabled. This compromises high availability. The alert resolves when
-            the event "cf.fsm.takeoverByPartnerEnabled" is detected.'
+          description: |
+            'Takeover of node {{ "{{ $labels.node }}" }} by its partner {{ "{{ $labels.partner }}" }} has been disabled. 
+            This compromises high availability. The alert resolves when the event "cf.fsm.takeoverByPartnerEnabled" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
   - name: callhome_reboot_takeover_final
     interval: 1m
@@ -110,14 +111,16 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_ha
         annotations:
           summary: '🔴 Node {{ "{{ $labels.node }}" }} taken over due to reboot'
-          description: >
-            'Node {{ "{{ $labels.node }}" }} has taken over its partner due to a
-            reboot. The alert resolves when the event "sfo.giveback.complete" is detected.'
+          description: |
+            'Node {{ "{{ $labels.node }}" }} has taken over its partner due to a reboot. The alert resolves when the event "sfo.giveback.complete" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
 
   - name: clam_node_ooq_final
     interval: 1m
@@ -149,14 +152,15 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_ha
         annotations:
           summary: '🔴 Node {{ "{{ $labels.node }}" }} is out of quorum'
-          description: >
-            'Node {{ "{{ $labels.node }}" }} is out of quorum (OOQ), indicating a Cluster
-            state issue. The alert resolves when the event "sfo.giveback.complete" is detected.'
+          description: |
+            'Node {{ "{{ $labels.node }}" }} is out of quorum (OOQ), indicating a Cluster state issue. The alert resolves when the event "sfo.giveback.complete" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
   - name: callhome_partner_down_final
     interval: 1m
@@ -188,14 +192,15 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_ha
         annotations:
           summary: '🔴 Partner node of {{ "{{ $labels.node }}" }} is down'
-          description: >
-            'The partner node of {{ "{{ $labels.node }}" }} is down, triggering a takeover.
-            The alert resolves when the event "sfo.giveback.complete" is detected.'
+          description: 
+            'The partner node of {{ "{{ $labels.node }}" }} is down, triggering a takeover.  The alert resolves when the event "sfo.giveback.complete" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
   - name: callhome_sfo_takeover_final
     interval: 1m
@@ -227,14 +232,16 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_ha
         annotations:
           summary: '🔴 SFO takeover occurred on {{ "{{ $labels.node }}" }}'
-          description: >
-            'A Storage Failover (SFO) takeover has occurred on node {{ "{{ $labels.node }}" }}.
-            The alert resolves when the event "sfo.giveback.complete" is detected.'
+          description: |
+            'A Storage Failover (SFO) takeover has occurred on node {{ "{{ $labels.node }}" }}. The alert resolves when the event "sfo.giveback.complete" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
 
   - name: sfo_PartialGiveback_final
     interval: 1m
@@ -266,15 +273,17 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_ha
         annotations:
           summary: '🟡 Partial giveback occurred on {{ "{{ $labels.node }}" }}'
-          description: >
-            'A partial giveback has occurred on node {{ "{{ $labels.node }}" }}. Not all
-            resources may have been returned. The alert resolves when the event
-            "sfo.giveback.complete" is detected.'
+          description: |
+            'A partial giveback has occurred on node {{ "{{ $labels.node }}" }}. Not all resources may have been returned. 
+            The alert resolves when the event "sfo.giveback.complete" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
 
   - name: cf_rsrc_takeoverOpFail_final
     interval: 1m
@@ -306,14 +315,16 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_ha
         annotations:
           summary: '🔴 Resource takeover operation failed on {{ "{{ $labels.node }}" }}'
-          description: >
-            'A resource takeover operation has failed on node {{ "{{ $labels.node }}" }}.
-            The alert resolves when the event "sfo.giveback.complete" is detected.'
+          description: |
+            'A resource takeover operation has failed on node {{ "{{ $labels.node }}" }}. The alert resolves when the event "sfo.giveback.complete" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
 
   - name: ha_giveback_aggrOnlineFailed_final
     interval: 1m
@@ -345,16 +356,17 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_ha
         annotations:
           summary: '🔴 Failed to bring aggregate {{ "{{ $labels.aggregate }}" }} online during giveback'
-          description: >
-            'During a giveback operation on node {{ "{{ $labels.node }}" }}, aggregate
-            {{ "{{ $labels.aggregate }}" }} failed to come online. Manual intervention may
-            be required. The alert resolves when the aggregate is back online
-            ("raid.vol.state.online").'
+          description: |
+            'During a giveback operation on node {{ "{{ $labels.node }}" }}, aggregate {{ "{{ $labels.aggregate }}" }} failed to come online. 
+            Manual intervention may be required. The alert resolves when the aggregate is back online ("raid.vol.state.online").
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
 
   - name: cf_fm_notkoverClusterDisable_final
     interval: 1m
@@ -386,15 +398,17 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_ha
         annotations:
           summary: '🔴 Cluster Failover disabled on {{ "{{ $labels.node }}" }}'
-          description: >
-            'Cluster failover takeover has been disabled on node {{ "{{ $labels.node }}" }}.
-            High availability is compromised. The alert resolves when takeover is
-            re-enabled ("cf.fsm.takeoverOfPartnerEnabled").'
+          description: |
+            'Cluster failover takeover has been disabled on node {{ "{{ $labels.node }}" }}. High availability is compromised. 
+            The alert resolves when takeover is re-enabled ("cf.fsm.takeoverOfPartnerEnabled").
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
 
   - name: clam_partner_halting_final
     interval: 1m
@@ -426,15 +440,168 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_ha
         annotations:
           summary: '🔴 Partner node is halting on {{ "{{ $labels.node }}" }}'
-          description: >
-            'The partner node of {{ "{{ $labels.node }}" }} is halting.
-            This will likely lead to a takeover. The alert resolves when
-            the event "cf.fm.takeoverComplete" is detected.'
-{{- else }}
-groups: []
-{{- end }}
+          description: |
+            'The partner node of {{ "{{ $labels.node }}" }} is halting. This will likely lead to a takeover. 
+            The alert resolves when the event "cf.fm.takeoverComplete" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: ha_mbox_disk_error
+    rules:    
+      - alert: HAMboxDiskError
+        expr: last_over_time(ems_events{message="rdb.ha.mboxError"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_ha
+        annotations:
+          summary: Bidirectional failover under the 'cluster HA' configuration is not currently functional due to problem with the on-disk mailboxes.
+          description: |
+           'Bidirectional failover under the 'cluster HA' configuration is not currently functional due to problem with the on-disk mailboxes.
+           This message occurs when the system detects a problem with the 'cluster HA' on-disk mailboxes, resulting in failover being currently disabled. No data is at risk, but the situation should be addressed. Note: The 'cluster HA' configuration provides a bidirectional failover mechanism for the management processes in a two-node cluster.
+           First ensure that both nodes are booted and operational. Then verify that all the cluster management processes are running on both nodes using the diagnostic command 'cluster ring show'. If there are any problems with this, contact NetApp technical support for guidance. Take the following actions: - Use the 'cluster ha modify -configure false' command to unconfigure high availability (HA). - Use the 'cluster ha modify -configure true' command to reconfigure HA. - Use the 'cluster ha show' diagnostic command to verify that the system is fully configured (both the front-end and on-disk mailboxes should both be 'true').
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: takeover_failed
+    rules:
+      - alert: TakeoverFailed
+        expr: last_over_time(ems_events{message="cf.fm.takeoverFailed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Takeover operation failed'
+          description: |
+           'Takeover operation failed due to reason {{ "{{ $labels.reason }}" }} 
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: version_mismatch
+    rules:
+      - alert: VersionMismatch
+        expr: last_over_time(ems_events{message="cf.fm.versionMismatch"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Version mismatch between subsystems'
+          description: |
+            'Subsystem {{ "{{ $labels.subsystem }}" }} version mismatch. Local version: {{ "{{ $labels.version }}" }}, partner version: {{ "{{ $labels.partner_version }}" }} - Takeover is not possible
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: takeover_no_heartbeat
+    rules:
+      - alert: TakeoverNoHeartbeat
+        expr: last_over_time(ems_events{message="cf.fsm.takeover.noHeartbeat"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_ha
+        annotations:
+          summary: '🔴 No heartbeat detected for takeover' 
+          description: |
+            'No heartbeat detected for takeover process |
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: takeover_hung
+    rules:
+      - alert: TakeoverHung
+        expr: last_over_time(ems_events{message="cf.fsm.takeoverHung"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Takeover process hung'
+          description: |
+            'Takeover process is hung in module {{ "{{ $labels.moduleName }}" }} |
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: notify_cfg_failed
+    rules:
+      - alert: NotifyCfgFailed
+        expr: last_over_time(ems_events{message="cf.hwassist.notifyCfgFailed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: storage
+          team: sci-storage
+          component: netapp_ha
+        annotations:
+          summary: '🟡 Hardware assist notify config failed'
+          description: |
+            'Hardware assist notify config failed for {{ "{{ $labels.hwtype }}" }} due to error {{ "{{ $labels.errorstr }}" }} (Code: {{ "{{ $labels.error }}" }}) 
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: takeover_disabled
+    rules:
+      - alert: TakeoverDisabled
+        expr: last_over_time(ems_events{message="cf.takeover.disabled"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Takeover disabled'
+          description: |
+            'Takeover is disabled. Reason: {{ "{{ $labels.reason }}" }} 
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: ic_link_down
+    rules:
+      - alert: ICInterconnectLinkDown
+        expr: (ems_events{message="ic.HAInterconnectLinkDown"})
+        for: 5m
+        labels:
+          severity: warning
+          support_group: storage
+          team: sci-storage
+          component: netapp_ha
+        annotations:
+          summary: '🟡 HA interconnect link down'
+          description: |
+            'HA interconnect link is down
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: personality_mismatch
+    rules:                          
+      - alert: personalityMismatchError
+        expr: last_over_time(ems_events{message="callhome.sfo.personality"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_ha
+        annotations:
+          summary: '🔴 Personality mismatch on cluster {{ "{{ $labels.netapp_cluster }}" }}'
+          description: |
+            'Personality mismatch on cluster {{ "{{ $labels.netapp_cluster }}" }}: {{ "{{ $labels.subject}}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'

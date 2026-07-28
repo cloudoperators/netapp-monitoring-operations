@@ -1,4 +1,3 @@
-{{- if ne (.Values.prometheusRules.ruleGroups.netappMiscAlerts | toString) "false" }}
 groups:
   - name: km_run_external_setup_final
     interval: 1m
@@ -30,14 +29,16 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_misc
         annotations:
           summary: '🟡 External Key Manager setup required on {{ "{{ $labels.node }}" }}'
-          description: >
-            'External Key Manager (KMIP) setup is required on node {{ "{{ $labels.node }}" }}.
-            The alert resolves when the event "km.keyserver.available" is detected.'
+          description: |
+            'External Key Manager (KMIP) setup is required on node {{ "{{ $labels.node }}" }}. 
+            The alert resolves when the event "km.keyserver.available" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
   - name: km_keyserver_notavailable_final
     interval: 1m
@@ -69,16 +70,16 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_misc
         annotations:
           summary: '🔴 Key server not available on {{ "{{ $labels.node }}" }}'
-          description: >
-            'The external key server (KMIP) with address {{ "{{ $labels.address }}" }}
-            is not available to node {{ "{{ $labels.node }}" }}.
-            This can impact access to encrypted data. The alert resolves when the event
-            "km.keyserver.available" is detected.'
+          description: |
+            'The external key server (KMIP) with address {{ "{{ $labels.address }}" }} is not available to node {{ "{{ $labels.node }}" }}. 
+            This can impact access to encrypted data. The alert resolves when the event "km.keyserver.available" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
   - name: km_keyretrieve_failed_final
     interval: 1m
@@ -110,15 +111,16 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          support_group: storage
+          team: sci-storage
           component: netapp_misc
         annotations:
           summary: '🔴 Key retrieval failed on {{ "{{ $labels.node }}" }}'
-          description: >
-            'Failed to retrieve encryption keys from the external key server on node
-            {{ "{{ $labels.node }}" }}. The alert resolves when the event
-            "km.keyserver.available" is detected.'
+          description: |
+            'Failed to retrieve encryption keys from the external key server on node {{ "{{ $labels.node }}" }}. 
+            The alert resolves when the event "km.keyserver.available" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
   - name: vserver_stop_failed_final
     interval: 1m
@@ -149,16 +151,422 @@ groups:
         expr: vserver_stop_failed_persistent == 1
         for: 2m
         labels:
-          severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          severity: warning
+          support_group: storage
+          team: sci-storage
           component: netapp_misc
         annotations:
-          summary: '🔴 Failed to stop SVM {{ "{{ $labels.svm }}" }}'
-          description: >
-            'An attempt to stop SVM {{ "{{ $labels.svm }}" }} (UUID: {{ "{{ $labels.svm_uuid }}" }})
-            on Cluster {{ "{{ $labels.netapp_cluster }}" }} has failed. The alert resolves
-            when the stop operation eventually succeeds ("vserver.stop.succeeded").'
-{{- else }}
-groups: []
-{{- end }}
+          summary: '🟡 Failed to stop SVM {{ "{{ $labels.svm }}" }}'
+          description: |
+            'An attempt to stop SVM {{ "{{ $labels.svm }}" }} (UUID: {{ "{{ $labels.svm_uuid }}" }}) on Cluster {{ "{{ $labels.netapp_cluster }}" }} has failed. 
+            The alert resolves when the stop operation eventually succeeds ("vserver.stop.succeeded").
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: varfs_backup_failed_final
+    interval: 1m
+    rules:
+      - record: varfs_backup_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="boot.varfs.backup.issue"}[2m])
+          )
+      - record: varfs_backup_succeeded_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="boot.varfs.backup.success"}[2m])
+          )
+      - record: varfs_backup_failed_persistent
+        expr: |
+          (
+            varfs_backup_failed_trigger
+            or
+            varfs_backup_failed_persistent
+          )
+          unless
+          varfs_backup_succeeded_trigger
+
+  - name: varfs_backup_failed_alerts
+    rules:
+      - alert: VarfsBackupFailed
+        expr: varfs_backup_failed_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🟡 Failed to back up varfs'
+          description: |
+            'Failed to backup varfs to boot device on cluster {{ "{{ $labels.netapp_cluster }}" }} node {{ "{{ $labels.node }}" }}: {{ "{{ $labels.error }}" }}.
+            Contact NetApp Technical support for assistance.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: healt_monitor_alert_final
+    interval: 1m
+    rules:
+      - record: healt_monitor_alert_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, monitor, alert_id) (
+            max_over_time(ems_events{message="hm.alert.raised"}[2m])
+          )
+      - record: healt_monitor_alert_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, monitor, alert_id) (
+            max_over_time(ems_events{message="hm.alert.cleared"}[2m])
+          )
+      - record: healt_monitor_alert_failed_persistent
+        expr: |
+          (
+            healt_monitor_alert_failed_trigger
+            or
+            healt_monitor_alert_failed_persistent
+          )
+          unless
+          healt_monitor_alert_ok_trigger
+
+  - name: healt_monitor_alert_failed_alerts
+    rules:
+      - alert: HealthMonitorAlert
+        expr: healt_monitor_alert_failed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 Health Alert on cluster {{ "{{ $labels.netapp_cluster }}" }}'
+          description: |
+            'Health Alert raised on cluster {{ "{{ $labels.netapp_cluster }}" }} node {{ "{{ $labels.node }}" }}: {{ "{{ $labels.detailed_info }}" }}.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+
+  - name: memory_map_failed_alerts
+    rules:
+      - alert: MemoryMapFailed
+        expr: last_over_time(ems_events{message="kern.vm.mmap.return"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 Memory allocation failed'
+          description: |
+            'Memory allocation failed on cluster {{ "{{ $labels.netapp_cluster }}" }} 
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: km_restore_invalid_key_alerts
+    rules:
+      - alert: KeyManagerRestoreInvalidKey
+        expr: last_over_time(ems_events{message="km.restore.invalid.key"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 KeyManager Restore - Invalid key'
+          description: |
+            'KeyManager Restore - Invalid key on cluster {{ "{{ $labels.netapp_cluster }}" }} SVM: {{ "{{ $labels.vserverName }}" }} 
+            Key ID: {{ "{{ $labels.keyId }}" }} Key Type: {{ "{{ $labels.keyType }}" }} Key Server: {{ "{{ $labels.keyServer }}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: qos_monitor_memory_alert_final
+    interval: 1m
+    rules:
+      - record: qos_monitor_memory_low_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="qos.monitor.memory.maxed"}[2m])
+          )
+      - record: qos_monitor_memory_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid) (
+            max_over_time(ems_events{message="qos.monitor.memory.abated"}[2m])
+          )
+      - record: qos_monitor_memory_low_persistent
+        expr: |
+          (
+            qos_monitor_memory_low_trigger
+            or
+            qos_monitor_memory_low_persistent
+          )
+          unless
+          qos_monitor_memory_ok_trigger
+
+  - name: qos_monitor_memory_alerts
+    rules:
+      - alert: QOSMonitorMemoryLow
+        expr: qos_monitor_memory_low_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 QoS dynamic memory has reached its limit. Some QoS features might operate in a limited capacity.'
+          description: |
+            'QoS dynamic memory has reached its limit. Some QoS features might operate in a limited capacity.
+            Some active workloads or streams should be deleted to free up memory. Use the 'statistics show -object workload -counter ops' command to determine which workloads are active. Active workloads will show non-zero ops. Then use the 'workload delete [workload name]' command multiple times to remove particular workloads. Alternatively, use the 'stream delete -workload [workload name] *' command to delete the associated streams from the active workload.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: sis_max_savings_near
+    rules:
+      - alert: SISMaxSavingsNear
+        expr: last_over_time(ems_events{message="sis.max.saving.near"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🟡 Maximum savings limit nearly reached on volume {{ "{{ $labels.volume }}" }}'
+          description: |
+            'Maximum savings limit nearly reached on volume {{ "{{ $labels.volume }}" }}
+            This message occurs when Single Instance Storage (SIS) savings on the volume is nearing its maximum limit. No further savings can be realized on the volume after the limit is reached.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: sis_max_savings_reached
+    rules:
+      - alert: SISMaxSavingsReached
+        expr: last_over_time(ems_events{message="sis.max.saving.reached"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 Maximum savings limit reached on volume {{ "{{ $labels.volume }}" }}'
+          description: |
+            'Maximum savings limit nearly reached on volume {{ "{{ $labels.volume }}" }}
+            This message occurs when Single Instance Storage (SIS) savings on the volume reaches its maximum limit. No further savings can be realized on the volume.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: controller_panic
+    rules:
+      - alert: ControllerPanic
+        expr: last_over_time(ems_events{message="sk.panic"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 Controller panic'
+          description: |
+            'Panic String: {{ "{{ $labels.reason }}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: vsphere_unreachable
+    rules:
+      - alert: vSphereUnreachable
+        expr: last_over_time(ems_events{message="vsa.vsphere.unreachable"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 Cannot establish connection to vSphere server: {{ "{{ $labels.detail }}" }}.'
+          description: |
+            'Cannot establish connection to vSphere server: {{ "{{ $labels.detail }}" }}.
+            Verify that the vSphere server is up and reachable through https: If necessary, correct vSphere server information using the command 'vsphere modify'.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: vsphere_noauth
+    rules:
+      - alert: vSphereNoAuth
+        expr: last_over_time(ems_events{message="vsa.vsphere.noauth"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 Cannot authenticate with vSphere server:  {{ "{{ $labels.detail }}" }}.'
+          description: |
+            Cannot authenticate with vSphere server:  {{ "{{ $labels.detail }}" }}.
+            Correct the vSphere server authentication information with the command 'vsphere modify'.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: upgrademgr_update_pausedErr_final
+    interval: 1m
+    rules:
+      - record: upgrademgr_update_pausedErr_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="upgrademgr.update.pausedErr"}[2m])
+          )
+      - record: upgrademgr_update_resumed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="upgrademgr.update.resumed"}[2m])
+          )
+      - record: upgrademgr_update_pausedErr_persistent
+        expr: |
+          (
+            upgrademgr_update_pausedErr_trigger
+            or
+            upgrademgr_update_pausedErr_persistent
+          )
+          unless
+          upgrademgr_update_resumed_trigger
+
+  - name: upgrademgr_update_pausedErr_alerts
+    rules:
+      - alert: UpgrademgrUpdatePausedErr
+        expr: upgrademgr_update_pausedErr_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🟡 Upgrade paused due to error on {{ "{{ $labels.node }}" }}'
+          description: |
+            'The automated upgrade on node {{ "{{ $labels.node }}" }} (Cluster: {{ "{{ $labels.netapp_cluster }}" }}) has been paused due to an error. 
+            The alert resolves when the event "upgrademgr.update.resumed" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: license_expiring
+    rules:
+      - alert: LicenseExpiring
+        expr: last_over_time(ems_events{message="license.check.warn.expiring"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🟡 License is expiring'
+          description: |
+            'License {{ "{{ $labels.package }}" }} is expiring. Expiration date: {{ "{{ $labels.expiration }}" }} |
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: cert_expired
+    rules:
+      - alert: CertExpired
+        expr: last_over_time(ems_events{message="mgmtgwd.certificate.expired"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 Certificate expired'
+          description: |
+            'Certificate {{ "{{ $labels.common_name }}" }} (Serial: {{ "{{ $labels.serial_number }}" }}) issued by {{ "{{ $labels.certificate_authority }}" }} of type {{ "{{ $labels.type }}" }} for vServer {{ "{{ $labels.vserver }}" }} has expired 
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: cert_expiring
+    rules:
+      - alert: CertExpiring
+        expr: last_over_time(ems_events{message="mgmtgwd.certificate.expiring"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🟡 Certificate expiring'
+          description: |
+            'Certificate {{ "{{ $labels.common_name }}" }} (Serial: {{ "{{ $labels.serial_number }}" }}) issued by {{ "{{ $labels.certificate_authority }}" }} of type {{ "{{ $labels.type }}" }} for vServer {{ "{{ $labels.vserver }}" }} is expiring in {{ "{{ $labels.days }}" }} days |
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: sign_cert_expired
+    rules:
+      - alert: SignCertExpired
+        expr: last_over_time(ems_events{message="mgmtgwd.sign.cert.expired"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 Signing certificate expired'
+          description: |
+            'Signing certificate {{ "{{ $labels.common_name }}" }} (Serial: {{ "{{ $labels.serial_number }}" }}, CA Serial: {{ "{{ $labels.ca_serial_number }}" }}) issued by {{ "{{ $labels.certificate_authority }}" }} for vServer {{ "{{ $labels.vserver }}" }} has expired 
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: sis_changelog_full
+    rules:
+      - alert: ChangeLogFull
+        expr: last_over_time(ems_events{message="sis.changelog.full"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🟡 SIS Change log full'
+          description: |
+            'SIS Change log full for volume {{ "{{ $labels.volume }}" }} (Vol: {{ "{{ $labels.vol }}" }}, VolIdent: {{ "{{ $labels.volident }}" }}, Volume Identifier: {{ "{{ $labels.volume_identifier }}" }}) on host {{ "{{ $labels.host }}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: https_transport_disabled
+    rules:            
+      - alert: HTTPSTransportDisabled
+        expr: last_over_time(ems_events{message="spm.httpd.process.exit"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 AutoSupport HTTPS transport disabled'
+          description: |
+            'The web server httpd with ID {{ "{{ $labels.id }}" }} exited due to {{ "{{ $labels.cause }}" }}. It will attempt to restart. 
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: root_vol_no_space
+    rules:                          
+      - alert: RootVolNoSpace
+        expr: last_over_time(ems_events{message="mgmtgwd.rootvolrec.low.space"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: storage
+          team: sci-storage
+          component: netapp_misc
+        annotations:
+          summary: '🔴 No root space on node {{ "{{ $labels.node }}" }}'
+          description: |
+            'Not enough available space on root volume for node {{ "{{ $labels.node }}" }} |
+            on cluster {{ "{{ $labels.netapp_cluster }}" }}: less than {{ "{{ $labels.threshold_in_mb}}" }} MB available.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
