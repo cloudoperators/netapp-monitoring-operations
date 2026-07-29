@@ -571,3 +571,7 @@ groups:
             on cluster {{ "{{ $labels.netapp_cluster }}" }}: less than {{ "{{ $labels.threshold_in_mb}}" }} MB available.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+ {{- else }}
+ groups: []
+ {{- end }}
+ 

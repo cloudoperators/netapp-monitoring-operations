@@ -279,3 +279,7 @@ groups:
            '{{ "{{ $labels.count }}" }} are currently unowned. Use the "disk assign" command to assign the disks to a system.
            Use "disk show -n" to determine which disks are unowned. Use "disk assign" to assign ownership of the disks to a system.
            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}'
+ {{- else }}
+ groups: []
+ {{- end }}
+ 

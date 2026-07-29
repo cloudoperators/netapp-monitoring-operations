@@ -74,7 +74,7 @@ groups:
         annotations:
           summary: '🟡 Mediator CA Cert Expiring'
           description: |
-            'CA certificate of the ONTAP Mediator (IP: {{ "{{ $labels.ipAddress}}) will expire in {{ "{{ $labels.daysToExpire }}" }} days. Expiry date: {{ "{{ $labels.expiryDate}}" }}".
+            'CA certificate of the ONTAP Mediator (IP: {{ "{{ $labels.ipAddress}}" }}) will expire in {{ "{{ $labels.daysToExpire }}" }} days. Expiry date: {{ "{{ $labels.expiryDate}}" }}".
             Before this certificate expires, remove the configuration of the current ONTAP Mediator by using the "snapmirror mediator remove" command. Update a new CA certificate on the ONTAP Mediator server. Reconfigure access to the ONTAP Mediator by using the "snapmirror mediator add" command.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
@@ -230,3 +230,7 @@ groups:
             This message will resolve automatically when the Mediator will be successfully resumed.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+ {{- else }}
+ groups: []
+ {{- end }}
+ 

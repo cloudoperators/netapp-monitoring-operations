@@ -106,3 +106,7 @@ groups:
             Check whether there is an unexpected increase in the number of authentication requests from CIFS clients. Verify that there are no connectivity issues to the external servers like DNS, LDAP, and DC.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+ {{- else }}
+ groups: []
+ {{- end }}
+ 

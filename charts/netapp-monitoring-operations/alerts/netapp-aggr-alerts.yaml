@@ -610,3 +610,7 @@ groups:
             'WARNING {{ "{{ $labels.vol_type }}" }} {{ "{{ $labels.owner }}" }} {{ "{{ $labels.vol }}" }} was created with no parity; do not fail its data disks!!
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+ {{- else }}
+ groups: []
+ {{- end }}
+ 

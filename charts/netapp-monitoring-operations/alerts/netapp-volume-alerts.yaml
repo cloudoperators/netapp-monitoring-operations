@@ -746,3 +746,7 @@ groups:
             'Scheduled snapshot creation failed on node {{ "{{ $labels.node }}" }} on cluster {{ "{{ $labels.netapp_cluster }}" }} volume {{ "{{ $labels.volumeName }}" }} SVM {{ "{{ $labels.vserverName }}" }}: {{ "{{ $labels.reason }}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }} 
             Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}
+ {{- else }}
+ groups: []
+ {{- end }}
+ 

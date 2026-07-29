@@ -190,3 +190,7 @@ groups:
            'The ntpd with ID {{ "{{ $labels.id }}" }} exited as a result of {{ "{{ $labels.cause }}" }}. This server will attempt to restart.
            Ensure that the LIFs on the current node are hosted on another node in the cluster; if they are not, migrate them to another node. While this problem persists, you should also ensure that the auto-revert and DNS load-balancing features do not migrate the LIFs back to the current node. The system attempts to recover by restarting the subsystem. If the subsystem does not recover within the threshold number of retries, then an AutoSupport message is sent. If your system is not configured to send AutoSupport messages and the issue persists, contact NetApp technical support.
            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}'
+ {{- else }}
+ groups: []
+ {{- end }}
+ 
