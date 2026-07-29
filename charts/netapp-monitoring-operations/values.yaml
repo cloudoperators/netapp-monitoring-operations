@@ -13,17 +13,19 @@ prometheusRules:
   ruleGroups:
     brocadeErrorAlerts: false      # brocade-error-alerts.yaml (forge, not in sci scope)
     harvestPollerAlerts: true      # harvest-poller-alerts.yaml
-    netappAggrAlerts: true         # netapp_aggr_alerts.yaml
-    netappClusterAlerts: true      # netapp_cluster_alerts.yaml
-    netappDiskAlerts: true         # netapp_disk_alerts.yaml
-    netappEmsAlerts: true          # netapp_ems_alerts.yaml
-    netappHaAlerts: true           # netapp_ha_alerts.yaml
-    netappHwAlerts: true           # netapp_hw_alerts.yaml
-    netappLunAlerts: true          # netapp_lun_alerts.yaml
-    netappMiscAlerts: true         # netapp_misc_alerts.yaml
-    netappNetworkAlerts: true      # netapp_network_alerts.yaml
-    netappNvdimmAlerts: true       # netapp_nvdimm_alerts.yaml
-    netappVolumeAlerts: true       # netapp_volume_alerts.yaml
+    netappAggrAlerts: true         # netapp-aggr-alerts.yaml
+    netappCifsAlerts: true.        # netapp-cifs-alerts.yaml
+    netappClusterAlerts: true      # netapp-cluster-alerts.yaml
+    netappDiskAlerts: true         # netapp-disk-alerts.yaml
+    netappHaAlerts: true           # netapp-ha-alerts.yaml
+    netappHwAlerts: true           # netapp-hw-alerts.yaml
+    netappLunAlerts: true          # netapp-lun-alerts.yaml
+    netappMediatorAlerts: true.    # netapp-mediator-alerts.yaml
+    netappMiscAlerts: true         # netapp-misc-alerts.yaml
+    netappNetworkAlerts: true      # netapp-network-alerts.yaml
+    netappNfsAlerts: true.         # netapp-nfs-alerts.yaml
+    netappNvdimmAlerts: true       # netapp-nvdimm-alerts.yaml
+    netappVolumeAlerts: true       # netapp-volume-alerts.yaml
     powerscaleErrorAlerts: false   # powerscale-error-alerts.yaml (forge, not in sci scope)
     purestorageErrorAlerts: false  # purestorage-error-alerts.yaml (forge, not in sci scope)
     pvcUsageAlerts: false          # pvc-usage-alerts.yaml (forge, not in sci scope)

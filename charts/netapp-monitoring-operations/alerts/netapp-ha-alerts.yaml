@@ -198,7 +198,7 @@ groups:
           component: netapp_ha
         annotations:
           summary: '🔴 Partner node of {{ "{{ $labels.node }}" }} is down'
-          description: 
+          description: |
             'The partner node of {{ "{{ $labels.node }}" }} is down, triggering a takeover.  The alert resolves when the event "sfo.giveback.complete" is detected.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'

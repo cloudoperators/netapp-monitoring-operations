@@ -464,7 +464,7 @@ groups:
           component: netapp_volume
         annotations:
           summary: '🟡 Max token count reached for volume {{ "{{ $labels.volume_name }}" }}'
-          description: >
+          description: |
             'The maximum token count has been reached for volume {{ "{{ $labels.volume_name }}" }} 
             on node {{ "{{ $labels.node }}" }}. This can impact performance or specific 
             operations. The alert resolves when the token cache is cleared 

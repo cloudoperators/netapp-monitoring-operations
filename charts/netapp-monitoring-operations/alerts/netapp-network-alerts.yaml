@@ -67,7 +67,7 @@ groups:
           component: netapp_network
         annotations:
           summary: '🔴 LIF {{ "{{ $labels.lif }}" }} is not at home'
-          description: >
+          description: |
             'LIF {{ "{{ $labels.lif }}" }} on node {{ "{{ $labels.node }}" }},
             cluster {{ "{{ $labels.netapp_cluster }}" }} is not at home.'
 
@@ -246,7 +246,7 @@ groups:
           component: netapp_network
         annotations:
           summary: '🔴 LIF {{ "{{ $labels.vifname }}" }} is down (no available ports)'
-          description: >
+          description: |
             'The logical interface (LIF) {{ "{{ $labels.vifname }}" }} on node 
             {{ "{{ $labels.node }}" }} is down because no suitable failover ports are 
             available. The alert resolves when the LIF is hosted again 
@@ -886,7 +886,7 @@ groups:
           component: netapp_network
         annotations:
           summary: '🟡 Link errors detected'
-          description: 
+          description: |
             'Link errors detected on interface {{ "{{ $labels.if_name }}" }} 
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
