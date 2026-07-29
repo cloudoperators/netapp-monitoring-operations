@@ -141,7 +141,7 @@ file by setting its key to `false`:
 prometheusRules:
   ruleGroups:
     pvcUsageAlerts: false
-    netappEmsAlerts: false
+    netappAggrAlerts: false
 ```
 
 The key is the camelCase form of the file name

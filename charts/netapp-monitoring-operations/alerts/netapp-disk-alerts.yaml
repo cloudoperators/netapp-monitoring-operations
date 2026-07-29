@@ -165,9 +165,9 @@ groups:
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
-          summary: '🟡 Disk inventory mismatch on cluster {{ "{{ $labels.cluster }}" }}'
+          summary: '🟡 Disk inventory mismatch on cluster {{ "{{ $labels.netapp_cluster }}" }}'
           description: |
-            'Disk inventory mismatch on cluster {{ "{{ $labels.cluster }}" }}. Status of the disk {{ "{{ $labels.disk }}" }} has recently changed or the 
+            'Disk inventory mismatch on cluster {{ "{{ $labels.netapp_cluster }}" }}. Status of the disk {{ "{{ $labels.disk }}" }} has recently changed or the 
             node {{ "{{ $labels.host }}" }} is missing the disk.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
@@ -282,4 +282,3 @@ groups:
  {{- else }}
  groups: []
  {{- end }}
- 

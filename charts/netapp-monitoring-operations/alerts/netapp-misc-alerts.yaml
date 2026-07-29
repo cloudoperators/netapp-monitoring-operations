@@ -205,33 +205,33 @@ groups:
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
-  - name: healt_monitor_alert_final
+  - name: health_monitor_alert_final
     interval: 1m
     rules:
-      - record: healt_monitor_alert_failed_trigger
+      - record: health_monitor_alert_failed_trigger
         expr: |
           max by (netapp_cluster, node, datacenter, cluster_uuid, monitor, alert_id) (
             max_over_time(ems_events{message="hm.alert.raised"}[2m])
           )
-      - record: healt_monitor_alert_ok_trigger
+      - record: health_monitor_alert_ok_trigger
         expr: |
           max by (netapp_cluster, node, datacenter, cluster_uuid, monitor, alert_id) (
             max_over_time(ems_events{message="hm.alert.cleared"}[2m])
           )
-      - record: healt_monitor_alert_failed_persistent
+      - record: health_monitor_alert_failed_persistent
         expr: |
           (
-            healt_monitor_alert_failed_trigger
+            health_monitor_alert_failed_trigger
             or
-            healt_monitor_alert_failed_persistent
+            health_monitor_alert_failed_persistent
           )
           unless
-          healt_monitor_alert_ok_trigger
+          health_monitor_alert_ok_trigger
 
-  - name: healt_monitor_alert_failed_alerts
+  - name: health_monitor_alert_failed_alerts
     rules:
       - alert: HealthMonitorAlert
-        expr: healt_monitor_alert_failed_persistent == 1
+        expr: health_monitor_alert_failed_persistent == 1
         for: 2m
         labels:
           severity: critical
