@@ -1,3 +1,4 @@
+{{- if ne (.Values.prometheusRules.ruleGroups.netappDiskAlerts | toString) "false" }}
 groups:
   - name: disk_failed_final
     interval: 1m
@@ -25,8 +26,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
           summary: '🔴 Disk {{ "{{ $labels.disk }}" }} has failed'
@@ -61,8 +62,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
           summary: '🟡 Disk {{ "{{ $labels.disk }}" }} is unassigned'
@@ -102,8 +103,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
           summary: '🔴 Spare disk missing'
@@ -120,8 +121,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
           summary: '🔴 Disk exceeds the average IO latency threshold'
@@ -160,8 +161,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
           summary: '🟡 Disk inventory mismatch on cluster {{ "{{ $labels.cluster }}" }}'
@@ -179,13 +180,13 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
           summary: '🔴 Disk I/O medium error'
           description: |
-            'Medium Error on disk {{ "{{ $label.disk_name }}" }}: op {{ "{{ $label.operation }}" }} sector {{ "{{ $label.sector }}" }} - sense data {{ "{{ $labels.sense_info }}" }}
+            'Medium Error on disk {{ "{{ $labels.disk_name }}" }}: op {{ "{{ $labels.operation }}" }} sector {{ "{{ $labels.sector }}" }} - sense data {{ "{{ $labels.sense_info }}" }}
             Disk info: {{ "{{ $labels.disk_information }}" }}
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
@@ -197,13 +198,13 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
           summary: '🔴 Disk out of service'
           description: |
-            'Disk out of service  {{ "{{ $label.disk_name }}" }}: {{ "{{ $labels.reason }}" }}
+            'Disk out of service  {{ "{{ $labels.disk_name }}" }}: {{ "{{ $labels.reason }}" }}
             POH: {{ "{{ $labels.poh }}" }} - GList {{ "{{ $labels.glist }}" }}
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
@@ -215,13 +216,13 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
-          summary: '🔴 {{ "{{ $labels.deviceType }}" }} device {{ "{{ $label.deviceName }}" }}: Transport error'
+          summary: '🔴 {{ "{{ $labels.deviceType }}" }} device {{ "{{ $labels.deviceName }}" }}: Transport error'
           description: |
-            '{{ "{{ $labels.deviceType }}" }} device {{ "{{ $label.deviceName }}" }}: Transport error during execution of command: HA status 0x{{ "{{ $label.ha_status }}" }}: cdb {{ "{{ $label.cdb }}" }}.
+            '{{ "{{ $labels.deviceType }}" }} device {{ "{{ $labels.deviceName }}" }}: Transport error during execution of command: HA status 0x{{ "{{ $labels.ha_status }}" }}: cdb {{ "{{ $labels.cdb }}" }}.
             Disk info: {{ "{{ $labels.disk_information }}" }}
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
@@ -233,8 +234,8 @@ groups:
         for: 5m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
           summary: '🟡 SAS drive PHY disable error'
@@ -252,8 +253,8 @@ groups:
         for: 5m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
           summary: '🟡 Some Unsupported Disks'
@@ -269,8 +270,8 @@ groups:
         for: 5m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
           summary: '🟡 {{ "{{ $labels.count }}" }} disks are currently unowned.'

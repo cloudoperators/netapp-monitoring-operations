@@ -15,7 +15,10 @@ Covered components:
 
 - **NetApp** — aggregate, cluster, disk, HA (storage failover), hardware, LUN,
   miscellaneous (key manager / SVM), network, NVDimm, volume, and a large set of
-  EMS-derived event alerts.
+  EMS-derived event alerts. NetApp alerts are ordered per topic (e.g. 
+  `netapp-aggr-alerts.yaml` will contain all aggregate related alerts).
+  Miscellaneous alerts (i.e. which don't follow in a specific bucket) are tracked
+  in file `netapp-misc-alerts.yaml`.
 - **Brocade** — switch error alerts. *(forge project — disabled by default)*
 - **PowerScale** — error alerts. *(forge project — disabled by default)*
 - **Pure Storage** — error alerts. *(forge project — disabled by default)*
@@ -143,7 +146,7 @@ prometheusRules:
 
 The key is the camelCase form of the file name
 (e.g. `brocade-error-alerts.yaml` → `brocadeErrorAlerts`,
-`netapp_ems_alerts.yaml` → `netappEmsAlerts`).
+`netapp-aggr-alerts.yaml` → `netappAggrAlerts`).
 
 When a file is disabled it renders as `groups: []` and produces an empty (but
 valid) `PrometheusRule`.

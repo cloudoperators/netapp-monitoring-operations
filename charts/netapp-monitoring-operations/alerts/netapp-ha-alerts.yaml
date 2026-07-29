@@ -1,3 +1,4 @@
+{{- if ne (.Values.prometheusRules.ruleGroups.netappHaAlerts | toString) "false" }}
 groups:
   - name: cf_fsm_takeoverOfPartnerDisabled_final
     interval: 1m
@@ -29,8 +30,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Takeover of partner {{ "{{ $labels.partner }}" }} disabled'
@@ -70,8 +71,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Takeover by partner {{ "{{ $labels.partner }}" }} disabled'
@@ -111,8 +112,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Node {{ "{{ $labels.node }}" }} taken over due to reboot'
@@ -152,8 +153,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Node {{ "{{ $labels.node }}" }} is out of quorum'
@@ -192,8 +193,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Partner node of {{ "{{ $labels.node }}" }} is down'
@@ -232,8 +233,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 SFO takeover occurred on {{ "{{ $labels.node }}" }}'
@@ -273,8 +274,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🟡 Partial giveback occurred on {{ "{{ $labels.node }}" }}'
@@ -315,8 +316,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Resource takeover operation failed on {{ "{{ $labels.node }}" }}'
@@ -356,8 +357,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Failed to bring aggregate {{ "{{ $labels.aggregate }}" }} online during giveback'
@@ -398,8 +399,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Cluster Failover disabled on {{ "{{ $labels.node }}" }}'
@@ -440,8 +441,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Partner node is halting on {{ "{{ $labels.node }}" }}'
@@ -458,8 +459,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: Bidirectional failover under the 'cluster HA' configuration is not currently functional due to problem with the on-disk mailboxes.
@@ -477,8 +478,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Takeover operation failed'
@@ -494,8 +495,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Version mismatch between subsystems'
@@ -511,8 +512,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 No heartbeat detected for takeover' 
@@ -528,8 +529,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Takeover process hung'
@@ -545,8 +546,8 @@ groups:
         for: 5m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🟡 Hardware assist notify config failed'
@@ -562,8 +563,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Takeover disabled'
@@ -579,8 +580,8 @@ groups:
         for: 5m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🟡 HA interconnect link down'
@@ -596,8 +597,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
           summary: '🔴 Personality mismatch on cluster {{ "{{ $labels.netapp_cluster }}" }}'

@@ -1,3 +1,4 @@
+{{- if ne (.Values.prometheusRules.ruleGroups.netappAggrAlerts | toString) "false" }}
 groups:
   - name: aggr_offline_final
     interval: 1m
@@ -25,8 +26,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} is offline'
@@ -61,8 +62,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🟡 Aggregate {{ "{{ $labels.aggr }}" }} is nearly full'
@@ -97,8 +98,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} is full'
@@ -133,8 +134,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🟡 Aggregate {{ "{{ $labels.aggr }}" }} is nearly full'
@@ -169,8 +170,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🟡 Aggregate {{ "{{ $labels.aggr }}" }} is nearly full'
@@ -205,8 +206,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} is full'
@@ -241,8 +242,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🟡 Aggregate {{ "{{ $labels.aggr }}" }} is nearly full'
@@ -277,8 +278,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} is full'
@@ -313,8 +314,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🟡 Aggregate {{ "{{ $labels.aggr }}" }} is nearly full'
@@ -349,8 +350,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} is full'
@@ -385,8 +386,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} headroom is high'
@@ -425,8 +426,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 RAID Double Degraded on {{ "{{ $labels.node }}" }}'
@@ -466,8 +467,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 WAFL Inconsistent on {{ "{{ $labels.name }}" }}'
@@ -507,8 +508,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 Aggregate {{ "{{ $labels.aggregate }}" }} state has changed on {{ "{{ $labels.node }}" }}'
@@ -548,8 +549,8 @@ groups:
         for: 2m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 Aggregate {{ "{{ $labels.aggregate }}" }} on {{ "{{ $labels.node }}" }} is restricted'
@@ -566,8 +567,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 Relocation of aggregate {{ "{{ $labels.aggregate }}" }} failed'
@@ -583,8 +584,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🔴 Giveback of aggregate {{ "{{ $labels.aggregate }}" }} failed'
@@ -600,8 +601,8 @@ groups:
         for: 5m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
           summary: '🟡 Raid error uninitialized parity volume'

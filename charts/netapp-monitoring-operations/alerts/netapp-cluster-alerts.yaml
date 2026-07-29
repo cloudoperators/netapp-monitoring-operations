@@ -1,3 +1,4 @@
+{{- if ne (.Values.prometheusRules.ruleGroups.netappClusterAlerts | toString) "false" }}
 groups:
   - name: cluster_port_crc_errors
     rules:
@@ -6,8 +7,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster_switch
         annotations:
           summary: '🔴 Cluster switch port HW errors'
@@ -23,8 +24,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster_switch
         annotations:
           summary: '🔴 Cluster switch reboot'
@@ -40,8 +41,8 @@ groups:
         for: 5m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster_switch
         annotations:
           summary: '🟡 No neighbors detected'
@@ -57,8 +58,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster_switch
         annotations:
           summary: '🔴 RDB recovery failed'
@@ -74,8 +75,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster
         annotations:
           summary: '🔴 Corruption reported in the local database of Data Replication'
@@ -91,8 +92,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster
         annotations:
           summary: 'Error encountered in mroot I/O: {{ "{{ $labels.message }}" }}'
@@ -109,8 +110,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster
         annotations:
           summary: '🔴 Multiple processes executing, detected by advisory locking violation: {{ "{{ $labels.message }}" }}'
@@ -127,8 +128,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster
         annotations:
           summary: '🔴 Corruption in the local database of Data Replication Module: {{ "{{ $labels.message }}" }}'
@@ -145,8 +146,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster
         annotations:
           summary: '🔴 Internal program error encountered: {{ "{{ $labels.message }}" }}'
@@ -163,8 +164,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster
         annotations:
           summary: '🔴 The ntpd process with ID {{ "{{ $labels.id }}" }} exited as a result of {{ "{{ $labels.cause }}" }}. This server will attempt to restart.'
@@ -180,8 +181,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster
         annotations:
           summary: '🔴 The vifmgr process with ID {{ "{{ $labels.id }}" }} exited as a result of {{ "{{ $labels.cause }}" }}. This server will attempt to restart.'

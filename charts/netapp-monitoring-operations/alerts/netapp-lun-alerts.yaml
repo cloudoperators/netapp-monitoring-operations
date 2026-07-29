@@ -1,3 +1,4 @@
+{{- if ne (.Values.prometheusRules.ruleGroups.netappLunAlerts | toString) "false" }}
 groups:
   - name: lun_offline_final
     interval: 1m
@@ -25,8 +26,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_lun
         annotations:
           summary: '🟡 LUN {{ "{{ $labels.lun }}" }} is offline'
@@ -42,13 +43,13 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_lun
         annotations:
           summary: '🔴 LUNs brought offline due to nvlog inconsistency'
           description: |
-            'LUNs in volume {{ "{{ $label.vol }}" }} have been brought offline because an inconsistency was detected in the nvlog during boot or takeover
+            'LUNs in volume {{ "{{ $labels.vol }}" }} have been brought offline because an inconsistency was detected in the nvlog during boot or takeover
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
@@ -59,8 +60,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_lun
         annotations:
           summary: '🔴 LUN volume has no space'

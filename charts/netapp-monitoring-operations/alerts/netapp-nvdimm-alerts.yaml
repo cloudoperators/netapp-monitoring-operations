@@ -1,3 +1,4 @@
+{{- if ne (.Values.prometheusRules.ruleGroups.netappNvdimmAlerts | toString) "false" }}
 groups:
   - name: nvmem_battery_capacity_low_final
     interval: 1m
@@ -29,8 +30,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_nvdimm
         annotations:
           summary: '🟡 NVMEM Battery Capacity Low on {{ "{{ $labels.name }}" }}'
@@ -70,8 +71,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_nvdimm
         annotations:
           summary: '🟡 NVRAM Battery Capacity Low on {{ "{{ $labels.node }}" }}'
@@ -88,8 +89,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_nvdimm
         annotations:
           summary: '🔴 NVDIMM ECC Error'

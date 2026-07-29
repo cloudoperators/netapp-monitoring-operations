@@ -1,3 +1,4 @@
+{{- if ne (.Values.prometheusRules.ruleGroups.netappMediatorAlerts | toString) "false" }}
 groups:
   - name: netapp_mediator_alerts
     rules:
@@ -6,8 +7,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🔴 An application has encountered an error'
@@ -21,8 +22,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🔴 No Mediator Mailbox detected'
@@ -36,8 +37,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🔴 Null Mediator Mailbox detected'
@@ -51,13 +52,13 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🔴 Mediator CA Cert Expired'
           description: |
-            'CA certificate of the ONTAP Mediator (IP: {{ "{{ $labels.ipAddress}}) expired on {{ "{{ $labels.expiryDate}}" }}".
+            'CA certificate of the ONTAP Mediator (IP: {{ "{{ $labels.ipAddress }}" }}) expired on {{ "{{ $labels.expiryDate }}" }}.
             Remove the configuration of the current ONTAP Mediator by using the "snapmirror mediator remove" command. Update a new CA certificate on the ONTAP Mediator server. Reconfigure access to the ONTAP Mediator by using the "snapmirror mediator add" command.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
@@ -67,8 +68,8 @@ groups:
         for: 5m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🟡 Mediator CA Cert Expiring'
@@ -83,8 +84,8 @@ groups:
         for: 5m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🟡 ONTAP Mediator is not accessible on cluster {{ "{{ $labels.netapp_cluster }}" }} with Mediator IP address {{ "{{ $labels.ipAddress }}" }}.'
@@ -99,8 +100,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🔴 ONTAP Mediator was removed on cluster {{ "{{ $labels.netapp_cluster }}" }}.'
@@ -114,8 +115,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🔴 ONTAP Mediator was forcefully removed on cluster {{ "{{ $labels.netapp_cluster }}" }}.'
@@ -130,13 +131,13 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🔴 Mediator Server certificate expired'
           description: |
-            'Server certificate of the ONTAP Mediator (IP: {{ "{{ $labels.ipAddress}}) expired on {{ "{{ $labels.expiryDate}}" }}".
+            'Server certificate of the ONTAP Mediator (IP: {{ "{{ $labels.ipAddress}}" }}) expired on {{ "{{ $labels.expiryDate}}" }}.
             Remove the configuration of the current ONTAP Mediator by using the "snapmirror mediator remove" command. Update a new server certificate on the ONTAP Mediator server. Reconfigure access to the ONTAP Mediator by using the "snapmirror mediator add" command.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
@@ -146,8 +147,8 @@ groups:
         for: 5m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🟡 Mediator Server certificate expiring'
@@ -162,8 +163,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🔴 ONTAP Mediator (IP: {{ "{{ $labels.ipAddress }}" }}) is unreachable from cluster {{ "{{ $labels.netapp_cluster }}" }}'
@@ -178,8 +179,8 @@ groups:
         for: 5m
         labels:
           severity: critical
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🔴 ONTAP Mediator (IP: {{ "{{ $labels.ipAddress }}" }}) is unusable on cluster {{ "{{ $labels.netapp_cluster }}" }}'
@@ -219,8 +220,8 @@ groups:
         for: 2m
         labels:
           severity: warning
-          support_group: storage
-          team: sci-storage
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_mediator
         annotations:
           summary: '🟡 ONTAP Mediator was suspended on cluster {{ "{{ $labels.netapp_cluster }}" }} having mediator IP address {{ "{{ $labels.ipAddress }}" }}.'
