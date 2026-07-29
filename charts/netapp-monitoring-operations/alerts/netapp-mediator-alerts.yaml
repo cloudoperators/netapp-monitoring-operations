@@ -13,7 +13,7 @@ groups:
         annotations:
           summary: '🔴 An application has encountered an error'
           description: |
-            '{{ "{{ $labels.computerName }}": "{{ $labels.eventSource }}" "{{ $labels.appVersion }}":  ("{{ $labels.eventID }}") "{{ $labels.category }}": "{{ $labels.subject }}" }}
+            'Computer: {{ "{{ $labels.computerName }}" }}, Source: {{ "{{ $labels.eventSource }}" }}, AppVersion: {{ "{{ $labels.appVersion }}" }}, EventID: {{ "{{ $labels.eventID }}" }}, Category: {{ "{{ $labels.category }}" }}, Subject: {{ "{{ $labels.subject }}" }}
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
@@ -137,7 +137,7 @@ groups:
         annotations:
           summary: '🔴 Mediator Server certificate expired'
           description: |
-            'Server certificate of the ONTAP Mediator (IP: {{ "{{ $labels.ipAddress}}" }}) expired on {{ "{{ $labels.expiryDate}}" }}.
+            'Server certificate of the ONTAP Mediator (IP: {{ "{{ $labels.ipAddress }}" }}) expired on {{ "{{ $labels.expiryDate }}" }}.
             Remove the configuration of the current ONTAP Mediator by using the "snapmirror mediator remove" command. Update a new server certificate on the ONTAP Mediator server. Reconfigure access to the ONTAP Mediator by using the "snapmirror mediator add" command.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
@@ -153,7 +153,7 @@ groups:
         annotations:
           summary: '🟡 Mediator Server certificate expiring'
           description: |
-            'Server certificate of the ONTAP Mediator (IP: {{ "{{ $labels.ipAddress}}) will expire in {{ "{{ $labels.daysToExpire }}" }} days. Expiry date: {{ "{{ $labels.expiryDate}}" }}".
+            'Server certificate of the ONTAP Mediator (IP: {{ "{{ $labels.ipAddress }}" }}) will expire in {{ "{{ $labels.daysToExpire }}" }} days. Expiry date: {{ "{{ $labels.expiryDate }}" }}".
             Before this certificate expires, remove the configuration of the current ONTAP Mediator by using the "snapmirror mediator remove" command. Update a new CA certificate on the ONTAP Mediator server. Reconfigure access to the ONTAP Mediator by using the "snapmirror mediator add" command.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
