@@ -192,7 +192,7 @@ groups:
 
   - name: monitor_shelf_fault_alerts
     rules:
-      - alert: monitorShelfFault
+      - alert: MonitorShelfFault
         expr: monitor_shelf_fault_persistent == 1
         for: 2m
         labels:
