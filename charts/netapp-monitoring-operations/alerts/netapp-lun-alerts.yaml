@@ -69,7 +69,7 @@ groups:
         annotations:
           summary: '🔴 LUN volume has no space'
           description: |
-            'LUN {{ "{{ $labels.lun_path }}" }} in volume {{ "{{ $labels.volume }}" }} is out of space |
+            'LUN {{ "{{ $labels.lun_path }}" }} in volume {{ "{{ $labels.volume }}" }} is out of space.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
  {{- else }}
