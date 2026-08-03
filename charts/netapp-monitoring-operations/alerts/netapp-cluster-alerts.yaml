@@ -1,0 +1,199 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if ne (.Values.prometheusRules.ruleGroups.netappClusterAlerts | toString) "false" }}
+groups:
+  - name: cluster_port_crc_errors
+    rules:
+      - alert: ClusterSwitchPortCRCerrors
+        expr: (ems_events{message="vifmgr.cluscheck.hwerrors"})
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_cluster_switch
+        annotations:
+          summary: '🔴 Cluster switch port HW errors'
+          description: |
+            'Cluster switch port CRC errors on port {{ "{{ $labels.port }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: cluster_switch_reboot
+    rules:
+      - alert: ClusterSwitchReboot
+        expr: (ems_events{message="cluster.switch.reboot"})
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_cluster_switch
+        annotations:
+          summary: '🔴 Cluster switch reboot'
+          description: |
+            'Cluster switch {{ "{{ $labels.switch_name }}" }} reboot
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: no_neighbors
+    rules:
+      - alert: NoNeighbors
+        expr: last_over_time(ems_events{message="clus.net.noNeighbors"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_cluster_switch
+        annotations:
+          summary: '🟡 No neighbors detected'
+          description: |
+            'No neighbors detected in cluster network 
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: rdb_recovery_failed
+    rules:
+      - alert: RecoveryFailed
+        expr: last_over_time(ems_events{message="rdb.recovery.failed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_cluster_switch
+        annotations:
+          summary: '🔴 RDB recovery failed'
+          description: |
+            'RDB recovery failed for unit {{ "{{ $labels.unit }}" }}. error message: {{ "{{ $labels.error_message }}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: rdb_corruption
+    rules: 
+      - alert: RDBCorruption
+        expr: last_over_time(ems_events{message="rdb.corruption.reported"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_cluster
+        annotations:
+          summary: '🔴 Corruption reported in the local database of Data Replication'
+          description: |
+            'Corruption reported in the local database of Data Replication Module {{ "{{ $labels.unit }}" }}, error: {{ "{{ $labels.message }}" }}.
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }} 
+            Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: rdb_io_failure
+    rules: 
+      - alert: RDBIOFailure
+        expr: last_over_time(ems_events{message="rdb.env.IOFailure"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_cluster
+        annotations:
+          summary: 'Error encountered in mroot I/O: {{ "{{ $labels.message }}" }}'
+          description: |
+           'Error encountered in mroot I/O: {{ "{{ $labels.message }}" }}
+           This message occurs when the cluster management Data Replication Module determines that I/O operations on the node's mroot filesystem are failing. This could indicate that the mroot filesystem is full, not mounted, or is encountering other error conditions.
+           Contact NetApp technical support for assistance with the mroot verification and recovery procedures.
+           Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}'
+
+  - name: rdb_env_process_duplicate
+    rules:  
+      - alert: RDBEnvProcessDuplicate
+        expr: last_over_time(ems_events{message="rdb.env.processDuplicate"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_cluster
+        annotations:
+          summary: '🔴 Multiple processes executing, detected by advisory locking violation: {{ "{{ $labels.message }}" }}'
+          description: |
+           'Multiple processes executing, detected by advisory locking violation: {{ "{{ $labels.message }}" }}
+           This message occurs when multiple conflicting instances of the management subsystem processes are executing. The situation was safely detected, but it is necessary to understand why it occurred. Normal system startup and operation should ensure that only one of each process type executes on any node. This can occur when an operator inadvertently runs a second instance by hand under the command shell.
+           Verify that all the cluster management processes are running using the diagnostic command 'cluster ring show.' Verify that only one of each is running on the node by using the 'ps' command in the command shell. If this event continues to occur, or if there is any question as to why the extra process was started, then contact NetApp technical support to investigate.
+           Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}'
+
+  - name: rdb_env_replica_corrupt
+    rules:  
+      - alert: RDBEnvReplicaCorrupt
+        expr: last_over_time(ems_events{message="rdb.env.replicaCorrupt"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_cluster
+        annotations:
+          summary: '🔴 Corruption in the local database of Data Replication Module: {{ "{{ $labels.message }}" }}'
+          description: |
+           'Corruption in the local database of Data Replication Module: {{ "{{ $labels.message }}" }}
+           This message occurs when the cluster management Data Replication Module determines that the node's local replica set is corrupted. If the damage extends beyond the replica set, it might be necessary to recover the mroot filesystem.
+           Contact NetApp technical support for assistance with the Data Replication Module and mroot filesystem verification and recovery procedures.
+           Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}'
+
+  - name: rdb_internal_error
+    rules:            
+      - alert: RDBInternalError
+        expr: last_over_time(ems_events{message="rdb.internal.error"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_cluster
+        annotations:
+          summary: '🔴 Internal program error encountered: {{ "{{ $labels.message }}" }}'
+          description: |
+           'Internal program error encountered: {{ "{{ $labels.message }}" }}
+           This message occurs when the cluster management Data Replication Module encounters an internal error, possibly causing the process to exit. The process should restart automatically, with full service restored.
+           Verify that all the cluster management processes are running using the diagnostic command 'cluster ring show.' If not, contact NetApp technical support.
+           Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}'
+
+  - name: ntpd_process_exit
+    rules:            
+      - alert: NTPDProcessExit
+        expr: last_over_time(ems_events{message="spm.ntpd.process.exit"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_cluster
+        annotations:
+          summary: '🔴 The ntpd process with ID {{ "{{ $labels.id }}" }} exited as a result of {{ "{{ $labels.cause }}" }}. This server will attempt to restart.'
+          description: |
+           'The ntpd with ID {{ "{{ $labels.id }}" }} exited as a result of {{ "{{ $labels.cause }}" }}. This server will attempt to restart.
+           The system attempts to recover by restarting the ntpd process. If the process does not restart within the threshold number of retries, then an AutoSupport message is sent. If your system is not configured to send AutoSupport messages and the issue persists, contact NetApp technical support.
+           Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}'
+
+  - name: vifmgr_process_exit
+    rules: 
+      - alert: VIFmgrProcessExit
+        expr: last_over_time(ems_events{message="spm.vifmgr.process.exit"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_cluster
+        annotations:
+          summary: '🔴 The vifmgr process with ID {{ "{{ $labels.id }}" }} exited as a result of {{ "{{ $labels.cause }}" }}. This server will attempt to restart.'
+          description: |
+           'The ntpd with ID {{ "{{ $labels.id }}" }} exited as a result of {{ "{{ $labels.cause }}" }}. This server will attempt to restart.
+           Ensure that the LIFs on the current node are hosted on another node in the cluster; if they are not, migrate them to another node. While this problem persists, you should also ensure that the auto-revert and DNS load-balancing features do not migrate the LIFs back to the current node. The system attempts to recover by restarting the subsystem. If the subsystem does not recover within the threshold number of retries, then an AutoSupport message is sent. If your system is not configured to send AutoSupport messages and the issue persists, contact NetApp technical support.
+           Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}'
+ {{- else }}
+ groups: []
+ {{- end }}
+ 

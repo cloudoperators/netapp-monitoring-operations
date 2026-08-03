@@ -1,0 +1,287 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if ne (.Values.prometheusRules.ruleGroups.netappDiskAlerts | toString) "false" }}
+groups:
+  - name: disk_failed_final
+    interval: 1m
+    rules:
+      - record: disk_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, disk) (disk_labels{failed="true"}) == 1
+      - record: disk_failed_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, disk) (disk_labels{failed="false"}) == 1
+      - record: disk_failed_persistent
+        expr: |
+          (
+            disk_failed_trigger
+            or
+            disk_failed_persistent
+          )
+          unless
+          disk_failed_ok_trigger
+
+  - name: disk_failed_alerts
+    rules:
+      - alert: DiskFailed
+        expr: disk_failed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🔴 Disk {{ "{{ $labels.disk }}" }} has failed'
+          description: |
+            'Disk {{ "{{ $labels.disk }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} has failed.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: disk_unassigned_final
+    interval: 1m
+    rules:
+      - record: disk_unassigned_trigger
+        expr: |
+          max by (netapp_cluster, node, disk) (disk_labels{container_type="unknown"}) == 1
+      - record: disk_unassigned_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, disk) (disk_labels{container_type!="unknown"}) == 1
+      - record: disk_unassigned_persistent
+        expr: |
+          (
+            disk_unassigned_trigger
+            or
+            disk_unassigned_persistent
+          )
+          unless
+          disk_unassigned_ok_trigger
+
+  - name: disk_unassigned_alerts
+    rules:
+      - alert: DiskUnassigned
+        expr: disk_unassigned_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🟡 Disk {{ "{{ $labels.disk }}" }} is unassigned'
+          description: |
+            'Disk {{ "{{ $labels.disk }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is unassigned.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+
+  - name: raid_config_spare_disk_missing_final
+    interval: 1m
+    rules:
+      - record: raid_config_spare_disk_missing_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, shelf, bay, name) (
+            max_over_time(ems_events{message="raid.config.spare.disk.missing"}[2m])
+          )
+      - record: raid_disk_inserted_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, shelf, bay, name) (
+            max_over_time(ems_events{message="raid.disk.inserted"}[2m])
+          )
+      - record: raid_config_spare_disk_missing_persistent
+        expr: |
+          (
+            raid_config_spare_disk_missing_trigger
+            or
+            raid_config_spare_disk_missing_persistent
+          )
+          unless
+          raid_disk_inserted_trigger
+
+  - name: raid_config_spare_disk_missing_alerts
+    rules:
+      - alert: RaidConfigSpareDiskMissing
+        expr: raid_config_spare_disk_missing_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🔴 Spare disk missing'
+          description: |
+            'A required spare disk is missing at shelf {{ "{{ $labels.shelf }}" }}, bay  {{ "{{ $labels.bay }}" }} on node {{ "{{ $labels.node }}" }}. This reduces 
+            data protection. The alert resolves when the event "raid.disk.inserted" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: disk_io_latency
+    rules:
+      - alert: DiskExceedsAvgIOLatencyThreshold
+        expr: (ems_events{message="shm.threshold.highIOLatency"})
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🔴 Disk exceeds the average IO latency threshold'
+          description: |
+            'Disk {{ "{{ $labels.disk_name }}" }} has exceeded {{ "{{ $labels.count }}" }} IOs which have latencies greater than the threshold.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: disk_inventory_mismatch_final
+    interval: 1m
+    rules:
+      - record: disk_inventory_mismatch_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, shelf, bay, name) (
+            max_over_time(ems_events{message="cf.disk.inventory.mismatch"}[2m])
+          )
+      - record: disk_inventory_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, shelf, bay, name) (
+            max_over_time(ems_events{message="cf.disk.inventory.mismatchOK"}[2m])
+          )
+      - record: disk_inventory_mismatch_persistent
+        expr: |
+          (
+            disk_inventory_mismatch_trigger
+            or
+            disk_inventory_mismatch_persistent
+          )
+          unless
+          disk_inventory_ok_trigger
+
+  - name: disk_inventory_mismatch_alerts
+    rules:
+      - alert: DiskInventoryMismatch
+        expr: disk_inventory_mismatch_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🟡 Disk inventory mismatch on cluster {{ "{{ $labels.netapp_cluster }}" }}'
+          description: |
+            'Disk inventory mismatch on cluster {{ "{{ $labels.netapp_cluster }}" }}. Status of the disk {{ "{{ $labels.disk }}" }} has recently changed or the 
+            node {{ "{{ $labels.host }}" }} is missing the disk.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+
+  - name: disk_medium_errors_alert
+    rules:
+      - alert: DiskMediumError
+        expr: last_over_time(ems_events{message="disk.ioMediumError"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🔴 Disk I/O medium error'
+          description: |
+            'Medium Error on disk {{ "{{ $labels.disk_name }}" }}: op {{ "{{ $labels.operation }}" }} sector {{ "{{ $labels.sector }}" }} - sense data {{ "{{ $labels.sense_info }}" }}
+            Disk info: {{ "{{ $labels.disk_information }}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: disk_out_of_service_alert
+    rules:
+      - alert: DiskOutOfService
+        expr: last_over_time(ems_events{message="disk.outOfService"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🔴 Disk out of service'
+          description: |
+            'Disk out of service  {{ "{{ $labels.disk_name }}" }}: {{ "{{ $labels.reason }}" }}
+            POH: {{ "{{ $labels.poh }}" }} - GList {{ "{{ $labels.glist }}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: scsi_cmd_transport_error
+    rules:
+      - alert: SCSICmdTransportError
+        expr: last_over_time(ems_events{message="scsi.cmd.transportError"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🔴 {{ "{{ $labels.deviceType }}" }} device {{ "{{ $labels.deviceName }}" }}: Transport error'
+          description: |
+            '{{ "{{ $labels.deviceType }}" }} device {{ "{{ $labels.deviceName }}" }}: Transport error during execution of command: HA status 0x{{ "{{ $labels.ha_status }}" }}: cdb {{ "{{ $labels.cdb }}" }}.
+            Disk info: {{ "{{ $labels.disk_information }}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: drive_phy_disabled_error
+    rules:
+      - alert: DrivePhyDisableerror
+        expr: last_over_time(ems_events{message="ds.sas.drivephy.disableErr"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🟡 SAS drive PHY disable error'
+          description: |
+            'SAS drive PHY disable error detected. Drive: {{ "{{ $labels.disk_data }}" }}, Reason: {{ "{{ $labels.reason }}" }} 
+            Shelf ID: {{ "{{ $labels.shelfID }}" }} Bay: {{ "{{ $labels.bay }}" }} Channels: {{ "{{ $labels.channels }}" }} 
+            Element: {{ "{{ $labels.element }}" }} PHY: {{ "{{ $labels.phy }}" }} 
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: disk_init_error
+    rules:              
+      - alert: diskErrUnsupported
+        expr: last_over_time(ems_events{message="disk.init.err.unsupported"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🟡 Some Unsupported Disks'
+          description: |
+            'Disk {{ "{{ $labels.diskName }}" }} is not recognized as a supported disk and cannot be used on this node
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: unowned_disk_reminder
+    rules: 
+      - alert: UnownedDiskReminder
+        expr: last_over_time(ems_events{message="unowned.disk.reminder"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: '🟡 {{ "{{ $labels.count }}" }} disks are currently unowned.'
+          description: |
+           '{{ "{{ $labels.count }}" }} are currently unowned. Use the "disk assign" command to assign the disks to a system.
+           Use "disk show -n" to determine which disks are unowned. Use "disk assign" to assign ownership of the disks to a system.
+           Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}'
+ {{- else }}
+ groups: []
+ {{- end }}
