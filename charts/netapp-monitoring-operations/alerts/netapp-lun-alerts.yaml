@@ -1,0 +1,75 @@
+{{- if ne (.Values.prometheusRules.ruleGroups.netappLunAlerts | toString) "false" }}
+groups:
+  - name: lun_offline_final
+    interval: 1m
+    rules:
+      - record: lun_offline_trigger
+        expr: |
+          max by (netapp_cluster, node, lun) (lun_labels{state!="online"}) == 1
+      - record: lun_offline_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, lun) (lun_labels{state="online"}) == 1
+      - record: lun_offline_persistent
+        expr: |
+          (
+            lun_offline_trigger
+            or
+            lun_offline_persistent
+          )
+          unless
+          lun_offline_ok_trigger
+
+  - name: lun_offline_alerts
+    rules:
+      - alert: LunOffline
+        expr: lun_offline_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_lun
+        annotations:
+          summary: '🟡 LUN {{ "{{ $labels.lun }}" }} is offline'
+          description: |
+            'LUN {{ "{{ $labels.lun }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is offline.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: lun_nvfail
+    rules:
+      - alert: LUNNVfail
+        expr: (ems_events{message="LUN.nvfail.vol.proc.complete"})
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_lun
+        annotations:
+          summary: '🔴 LUNs brought offline due to nvlog inconsistency'
+          description: |
+            'LUNs in volume {{ "{{ $labels.vol }}" }} have been brought offline because an inconsistency was detected in the nvlog during boot or takeover
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: lun_vol_no_space
+    rules:
+      - alert: LUNVolNoSpace
+        expr: last_over_time(ems_events{message="LUN.vol.no.space"}[1m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_lun
+        annotations:
+          summary: '🔴 LUN volume has no space'
+          description: |
+            'LUN {{ "{{ $labels.lun_path }}" }} in volume {{ "{{ $labels.volume }}" }} is out of space |
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+ {{- else }}
+ groups: []
+ {{- end }}
+ 

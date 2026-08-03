@@ -1,0 +1,616 @@
+{{- if ne (.Values.prometheusRules.ruleGroups.netappAggrAlerts | toString) "false" }}
+groups:
+  - name: aggr_offline_final
+    interval: 1m
+    rules:
+      - record: aggr_offline_trigger
+        expr: |
+          max by (netapp_cluster, node, aggr) (aggr_labels{state!="online"}) == 1
+      - record: aggr_online_trigger
+        expr: |
+          max by (netapp_cluster, node, aggr) (aggr_labels{state="online"}) == 1
+      - record: aggr_offline_persistent
+        expr: |
+          (
+            aggr_offline_trigger
+            or
+            aggr_offline_persistent
+          )
+          unless
+          aggr_online_trigger
+
+  - name: aggr_offline_alerts
+    rules:
+      - alert: AggrOfflineAlert
+        expr: aggr_offline_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} is offline'
+          description: |
+            'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is offline.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: sci_aggr_nearly_full_final
+    interval: 1m
+    rules:
+      - record: sci_aggr_nearly_full_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"stnpca.*"}[2h])) > 70
+      - record: sci_aggr_nearly_full_ok_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"stnpca.*"}[2h])) < 70
+      - record: sci_aggr_nearly_full_persistent
+        expr: |
+          (
+            sci_aggr_nearly_full_trigger
+            or
+            sci_aggr_nearly_full_persistent
+          )
+          unless
+          sci_aggr_nearly_full_ok_trigger
+
+  - name: sci_aggr_nearly_full_alerts
+    rules:
+      - alert: SCIAggrNearlyFull
+        expr: sci_aggr_nearly_full_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🟡 Aggregate {{ "{{ $labels.aggr }}" }} is nearly full'
+          description: |
+            'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is nearly full: {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: sci_aggr_full_final
+    interval: 1m
+    rules:
+      - record: sci_aggr_full_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"stnpc.*"}[2h])) > 80
+      - record: sci_aggr_full_ok_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"stnpc.*"}[2h])) < 80
+      - record: sci_aggr_full_persistent
+        expr: |
+          (
+            sci_aggr_full_trigger
+            or
+            sci_aggr_full_persistent
+          )
+          unless
+          sci_aggr_full_ok_trigger
+
+  - name: sci_aggr_full_alerts
+    rules:
+      - alert: SCIAggrFull
+        expr: sci_aggr_full_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} is full'
+          description: |
+            'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is full: {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: brazilstorec2_aggr_nearly_full_final
+    interval: 1m
+    rules:
+      - record: brazilstorec2_aggr_nearly_full_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="brazilstorec2"}[2h])) > 90
+      - record: brazilstorec2_aggr_nearly_full_ok_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="brazilstorec2"}[2h])) < 90
+      - record: brazilstorec2_aggr_nearly_full_persistent
+        expr: |
+          (
+            brazilstorec2_aggr_nearly_full_trigger
+            or
+            brazilstorec2_aggr_nearly_full_persistent
+          )
+          unless
+          brazilstorec2_aggr_nearly_full_ok_trigger
+
+  - name: brazilstorec2_aggr_nearly_full_alerts
+    rules:
+      - alert: Brazilstorec2AggrNearlyFull
+        expr: brazilstorec2_aggr_nearly_full_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🟡 Aggregate {{ "{{ $labels.aggr }}" }} is nearly full'
+          description: |
+            'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is nearly full: {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: ecs_aggr_nearly_full_final
+    interval: 1m
+    rules:
+      - record: ecs_aggr_nearly_full_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"hec.*",netapp_cluster!="hec03fc005"}[2h])) > 90
+      - record: ecs_aggr_nearly_full_ok_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"hec.*",netapp_cluster!="hec03fc005"}[2h])) < 90
+      - record: ecs_aggr_nearly_full_persistent
+        expr: |
+          (
+            ecs_aggr_nearly_full_trigger
+            or
+            ecs_aggr_nearly_full_persistent
+          )
+          unless
+          ecs_aggr_nearly_full_ok_trigger
+
+  - name: ecs_aggr_nearly_full_alerts
+    rules:
+      - alert: ECSAggrNearlyFull
+        expr: ecs_aggr_nearly_full_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🟡 Aggregate {{ "{{ $labels.aggr }}" }} is nearly full'
+          description: |
+            'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is nearly full: {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: ecs_aggr_full_final
+    interval: 1m
+    rules:
+      - record: ecs_aggr_full_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"hec.*",netapp_cluster!="hec03fc005"}[2h])) > 95
+      - record: ecs_aggr_full_ok_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"hec.*",netapp_cluster!="hec03fc005"}[2h])) < 95
+      - record: ecs_aggr_full_persistent
+        expr: |
+          (
+            ecs_aggr_full_trigger
+            or
+            ecs_aggr_full_persistent
+          )
+          unless
+          ecs_aggr_full_ok_trigger
+
+  - name: ecs_aggr_full_alerts
+    rules:
+      - alert: ECSAggrFull
+        expr: ecs_aggr_full_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} is full'
+          description: |
+            'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is full: {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: HEC03FC005_aggr_nearly_full_final
+    interval: 1m
+    rules:
+      - record: HEC03FC005_aggr_nearly_full_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="hec03fc005"}[2h])) > 85
+      - record: HEC03FC005_aggr_nearly_full_ok_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="hec03fc005"}[2h])) < 85
+      - record: HEC03FC005_aggr_nearly_full_persistent
+        expr: |
+          (
+            HEC03FC005_aggr_nearly_full_trigger
+            or
+            HEC03FC005_aggr_nearly_full_persistent
+          )
+          unless
+          HEC03FC005_aggr_nearly_full_ok_trigger
+
+  - name: HEC03FC005_aggr_nearly_full_alerts
+    rules:
+      - alert: HEC03FC005AggrNearlyFull
+        expr: HEC03FC005_aggr_nearly_full_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🟡 Aggregate {{ "{{ $labels.aggr }}" }} is nearly full'
+          description: |
+            'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is nearly full: {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: HEC03FC005_aggr_full_final
+    interval: 1m
+    rules:
+      - record: HEC03FC005_aggr_full_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="hec03fc005"}[2h])) > 90
+      - record: HEC03FC005_aggr_full_ok_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="hec03fc005"}[2h])) < 90
+      - record: HEC03FC005_aggr_full_persistent
+        expr: |
+          (
+            HEC03FC005_aggr_full_trigger
+            or
+            HEC03FC005_aggr_full_persistent
+          )
+          unless
+          HEC03FC005_aggr_full_ok_trigger
+
+  - name: HEC03FC005_aggr_full_alerts
+    rules:
+      - alert: HEC03FC005AggrFull
+        expr: HEC03FC005_aggr_full_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} is full'
+          description: |
+            'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is full: {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: sod_aggr_nearly_full_final
+    interval: 1m
+    rules:
+      - record: sod_aggr_nearly_full_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="derotnpc001",netapp_cluster!="derotnpc0013",netapp_cluster!~"hec.*",netapp_cluster!~"stnpca.*",netapp_cluster!="brazilstorec2",aggr!="aggr_sata_sl_00103"}[2h])) > 85
+      - record: sod_aggr_nearly_full_ok_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="derotnpc001",netapp_cluster!="derotnpc0013",netapp_cluster!~"hec.*",netapp_cluster!~"stnpca.*",netapp_cluster!="brazilstorec2",aggr!="aggr_sata_sl_00103"}[2h])) < 85
+      - record: sod_aggr_nearly_full_persistent
+        expr: |
+          (
+            sod_aggr_nearly_full_trigger
+            or
+            sod_aggr_nearly_full_persistent
+          )
+          unless
+          sod_aggr_nearly_full_ok_trigger
+
+  - name: sod_aggr_nearly_full_alerts
+    rules:
+      - alert: SODAggrNearlyFull
+        expr: sod_aggr_nearly_full_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🟡 Aggregate {{ "{{ $labels.aggr }}" }} is nearly full'
+          description: |
+            'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is nearly full: {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: sod_aggr_full_final
+    interval: 1m
+    rules:
+      - record: sod_aggr_full_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="derotnpc001",netapp_cluster!="derotnpc0013",netapp_cluster!~"hec.*",netapp_cluster!~"stnpca.*",netapp_cluster!="brazilstorec2",aggr!="aggr_sata_sl_00103"}[2h])) > 90
+      - record: sod_aggr_full_ok_trigger
+        expr: |
+          (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="derotnpc001",netapp_cluster!="derotnpc0013",netapp_cluster!~"hec.*",netapp_cluster!~"stnpca.*",netapp_cluster!="brazilstorec2",aggr!="aggr_sata_sl_00103"}[2h])) < 90
+      - record: sod_aggr_full_persistent
+        expr: |
+          (
+            sod_aggr_full_trigger
+            or
+            sod_aggr_full_persistent
+          )
+          unless
+          sod_aggr_full_ok_trigger
+
+  - name: sod_aggr_full_alerts
+    rules:
+      - alert: SODAggrFull
+        expr: sod_aggr_full_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} is full'
+          description: |
+            'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is full: {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: aggr_headroom_final
+    interval: 1m
+    rules:
+      - record: aggr_headroom_trigger
+        expr: |
+          (avg_over_time(headroom_aggr_current_utilization{netapp_cluster!~".*root.*"}[2h])) > 90
+      - record: aggr_headroom_ok_trigger
+        expr: |
+          (avg_over_time(headroom_aggr_current_utilization{netapp_cluster!~".*root.*"}[2h])) < 90
+      - record: aggr_headroom_persistent
+        expr: |
+          (
+            aggr_headroom_trigger
+            or
+            aggr_headroom_persistent
+          )
+          unless
+          aggr_headroom_ok_trigger
+
+  - name: aggr_headroom_alerts
+    rules:
+      - alert: AggrHeadroom
+        expr: aggr_headroom_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} headroom is high'
+          description: |
+            'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} headroom is high: {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: monitor_raidtec_dblDegraded_final
+    interval: 1m
+    rules:
+      - record: monitor_raidtec_dblDegraded_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, rgname) (
+            max_over_time(ems_events{message="monitor.raidtec.dblDegraded"}[2m])
+          )
+      - record: monitor_raid_reconstruct_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, rgname) (
+            max_over_time(ems_events{message="monitor.raid.reconstruct"}[2m])
+          )
+      - record: monitor_raidtec_dblDegraded_persistent
+        expr: |
+          (
+            monitor_raidtec_dblDegraded_trigger
+            or
+            monitor_raidtec_dblDegraded_persistent
+          )
+          unless
+          monitor_raid_reconstruct_trigger
+
+  - name: monitor_raidtec_dblDegraded_alerts
+    rules:
+      - alert: MonitorRaidtecDblDegraded
+        expr: monitor_raidtec_dblDegraded_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 RAID Double Degraded on {{ "{{ $labels.node }}" }}'
+          description: | 
+            'RAID Group {{ "{{ $labels.rgname }}" }} on node {{ "{{ $labels.node }}" }}  (Cluster: {{ "{{ $labels.netapp_cluster }}" }}) is double degraded. 
+            This indicates a critical failure risk. The alert resolves when the event  "monitor.raid.reconstruct" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: callhome_wafl_inconsistent_final
+    interval: 1m
+    rules:
+      - record: callhome_wafl_inconsistent_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="callhome.wafl.inconsistent"}[2m])
+          )
+      - record: callhome_wafl_iron_done_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="callhome.wafl.iron.done"}[2m])
+          )
+      - record: callhome_wafl_inconsistent_persistent
+        expr: |
+          (
+            callhome_wafl_inconsistent_trigger
+            or
+            callhome_wafl_inconsistent_persistent
+          )
+          unless
+          callhome_wafl_iron_done_trigger
+
+  - name: callhome_wafl_inconsistent_alerts
+    rules:
+      - alert: CallhomeWaflInconsistent
+        expr: callhome_wafl_inconsistent_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 WAFL Inconsistent on {{ "{{ $labels.name }}" }}'
+          description: |
+            'An inconsistency in WAFL (Write Anywhere File Layout) was detected on node {{ "{{ $labels.name }}" }} (Cluster: {{ "{{ $labels.netapp_cluster }}" }}). 
+            This requires immediate attention. The alert resolves when the event "callhome.wafl.iron.done" is detected.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: raid_vol_state_changed_final
+    interval: 1m
+    rules:
+      - record: raid_vol_state_changed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, aggregate) (
+            max_over_time(ems_events{message="raid.vol.state.changed"}[2m])
+          )
+      - record: raid_vol_state_online_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, aggregate) (
+            max_over_time(ems_events{message="raid.vol.state.online"}[2m])
+          )
+      - record: raid_vol_state_changed_persistent
+        expr: |
+          (
+            raid_vol_state_changed_trigger
+            or
+            raid_vol_state_changed_persistent
+          )
+          unless
+          raid_vol_state_online_trigger
+
+  - name: raid_vol_state_changed_alerts
+    rules:
+      - alert: RaidVolStateChanged
+        expr: raid_vol_state_changed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 Aggregate {{ "{{ $labels.aggregate }}" }} state has changed on {{ "{{ $labels.node }}" }}'
+          description: |
+            'The state of aggregate {{ "{{ $labels.aggregate }}" }} on node {{ "{{ $labels.node }}" }} has changed to a non-optimal state.
+            This can impact data availability. The alert resolves when the aggregate is back online ("raid.vol.state.online").
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: aggregate_restricted
+    interval: 1m
+    rules:
+      - record: aggregate_restricted_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, aggregate) (
+            max_over_time(ems_events{message="callhome.aggr.restricted"}[2m])
+          )
+      - record: raid_vol_state_online_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, aggregate) (
+            max_over_time(ems_events{message="raid.vol.state.online"}[2m])
+          )
+      - record: aggregate_restricted_persistent
+        expr: |
+          (
+            aggregate_restricted_trigger
+            or
+            aggregate_restricted_persistent
+          )
+          unless
+          raid_vol_state_online_trigger
+
+  - name: aggregate_restricted_alerts
+    rules:
+      - alert: AggrRestricted
+        expr: aggregate_restricted_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 Aggregate {{ "{{ $labels.aggregate }}" }} on {{ "{{ $labels.node }}" }} is restricted'
+          description: |
+            'The state of aggregate {{ "{{ $labels.aggregate }}" }} on node {{ "{{ $labels.node }}" }} has changed to a non-optimal state.
+            This can impact data availability. The alert resolves when the aggregate is back online ("raid.vol.state.online").
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: aggregate_relocation_failed
+    rules:
+      - alert: AggrRelocationFailed
+        expr: last_over_time(ems_events{message="arl.netra.ca.check.failed"}[1m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 Relocation of aggregate {{ "{{ $labels.aggregate }}" }} failed'
+          description: |
+            'Relocation of aggregate {{ "{{ $labels.aggregate }}" }} failed due to {{ "{{ $labels.reason }}" }} preventing object store access on the destination node
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: aggregate_giveback_object_store_failed
+    rules:
+      - alert: AggrGivebackObjStoreFailed
+        expr: last_over_time(ems_events{message="gb.netra.ca.check.failed"}[1m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🔴 Giveback of aggregate {{ "{{ $labels.aggregate }}" }} failed'
+          description: |
+            'Giveback of aggregate {{ "{{ $labels.aggregate }}" }} failed due to {{ "{{ $labels.reason }}" }} preventing object store access on the destination node
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: uninitialized_parity_vol
+    rules:
+      - alert: UninitializedParityVol
+        expr: last_over_time(ems_events{message="raid.uninitialized.parity.vol"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: '🟡 Raid error uninitialized parity volume'
+          description: |
+            'WARNING {{ "{{ $labels.vol_type }}" }} {{ "{{ $labels.owner }}" }} {{ "{{ $labels.vol }}" }} was created with no parity; do not fail its data disks!!
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+ {{- else }}
+ groups: []
+ {{- end }}
+ 
