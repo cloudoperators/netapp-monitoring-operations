@@ -388,12 +388,12 @@ groups:
         expr: aggr_headroom_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
-          summary: '🔴 Aggregate {{ "{{ $labels.aggr }}" }} headroom is high'
+          summary: '🟡 Aggregate {{ "{{ $labels.aggr }}" }} headroom is high'
           description: |
             'Aggregate {{ "{{ $labels.aggr }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} headroom is high: {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -586,12 +586,12 @@ groups:
         expr: last_over_time(ems_events{message="gb.netra.ca.check.failed"}[1m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_aggr
         annotations:
-          summary: '🔴 Giveback of aggregate {{ "{{ $labels.aggregate }}" }} failed'
+          summary: '🟡 Giveback of aggregate {{ "{{ $labels.aggregate }}" }} failed'
           description: |
             'Giveback of aggregate {{ "{{ $labels.aggregate }}" }} failed due to {{ "{{ $labels.reason }}" }} preventing object store access on the destination node
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 

@@ -27,12 +27,12 @@ groups:
         expr: last_over_time(ems_events{message="Nblade.cifsManyAuths"}[1m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cifs
         annotations:
-          summary: '🔴 CIFS client too many authentication negotiations'
+          summary: '🟡 CIFS client too many authentication negotiations'
           description: |
             'Many simultaneous new CIFS connections are occurring on Vserver ID {{ "{{ $labels.vsId }}" }} from IP address {{ "{{ $labels.remoteIpAddress }}" }} 
             object type is {{ "{{ $labels.object_type }}" }} with UUID {{ "{{ $labels.object_uuid }}" }}
@@ -62,12 +62,12 @@ groups:
         expr: last_over_time(ems_events{message="secd.dc.out.of.pipe.instances"}[1m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cifs
         annotations:
-          summary: '🔴 Domain Controller out of pipe instances'
+          summary: '🟡 Domain Controller out of pipe instances'
           description: |
             'MSRPC for Vserver {{ "{{ $labels.vserver }}" }} to {{ "{{ $labels.dc }}" }}:{{ "{{ $labels.pipe }}" }} was retried {{ "{{ $labels.retries }}" }} times (delay: {{ "{{ $labels.delay }}" }} usecs).
             This message occurs when the Windows Domain Controller (DC), while responding to an MSRPC request from Data ONTAP®, returns an error indicating that it ran out of pipe instances in the listening state. This can happen when the requests from Data ONTAP are received by the DC during a timing window when the limited number of listening pipe instance are already allocated to other requests. Such errors received by Data ONTAP might result in longer CIFS/NFS authentication and/or access times, potentially resulting in CIFS/NFS client timeouts.
@@ -81,12 +81,12 @@ groups:
         expr: last_over_time(ems_events{message="secd.netlogon.noServers"}[1m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cifs
         annotations:
-          summary: '🔴 None of the Netlogon servers are available'
+          summary: '🟡 None of the Netlogon servers are available'
           description: |
             'None of the Netlogon servers configured for Vserver {{ "{{ $labels.vserverName }}" }} are currently accessible via the network.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -98,12 +98,12 @@ groups:
         expr: (ems_events{message="secd.rpc.server.request.dropped"})
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cifs
         annotations:
-          summary: '🔴 RPC dropped due to lack of memory'
+          summary: '🟡 RPC dropped due to lack of memory'
           description: |
             'This message occurs when an RPC is dropped by SecD due to memory exhaustion.
             Check whether there is an unexpected increase in the number of authentication requests from CIFS clients. Verify that there are no connectivity issues to the external servers like DNS, LDAP, and DC.

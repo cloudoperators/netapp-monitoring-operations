@@ -28,12 +28,12 @@ groups:
         expr: disk_failed_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
-          summary: '🔴 Disk {{ "{{ $labels.disk }}" }} has failed'
+          summary: '🟡 Disk {{ "{{ $labels.disk }}" }} has failed'
           description: |
             'Disk {{ "{{ $labels.disk }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} has failed.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -105,12 +105,12 @@ groups:
         expr: raid_config_spare_disk_missing_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
-          summary: '🔴 Spare disk missing'
+          summary: '🟡 Spare disk missing'
           description: |
             'A required spare disk is missing at shelf {{ "{{ $labels.shelf }}" }}, bay  {{ "{{ $labels.bay }}" }} on node {{ "{{ $labels.node }}" }}. This reduces 
             data protection. The alert resolves when the event "raid.disk.inserted" is detected.
@@ -123,12 +123,12 @@ groups:
         expr: (ems_events{message="shm.threshold.highIOLatency"})
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
-          summary: '🔴 Disk exceeds the average IO latency threshold'
+          summary: '🟡 Disk exceeds the average IO latency threshold'
           description: |
             'Disk {{ "{{ $labels.disk_name }}" }} has exceeded {{ "{{ $labels.count }}" }} IOs which have latencies greater than the threshold.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -182,12 +182,12 @@ groups:
         expr: last_over_time(ems_events{message="disk.ioMediumError"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
-          summary: '🔴 Disk I/O medium error'
+          summary: '🟡 Disk I/O medium error'
           description: |
             'Medium Error on disk {{ "{{ $labels.disk_name }}" }}: op {{ "{{ $labels.operation }}" }} sector {{ "{{ $labels.sector }}" }} - sense data {{ "{{ $labels.sense_info }}" }}
             Disk info: {{ "{{ $labels.disk_information }}" }}
@@ -200,12 +200,12 @@ groups:
         expr: last_over_time(ems_events{message="disk.outOfService"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
-          summary: '🔴 Disk out of service'
+          summary: '🟡 Disk out of service'
           description: |
             'Disk out of service  {{ "{{ $labels.disk_name }}" }}: {{ "{{ $labels.reason }}" }}
             POH: {{ "{{ $labels.poh }}" }} - GList {{ "{{ $labels.glist }}" }}
@@ -218,12 +218,12 @@ groups:
         expr: last_over_time(ems_events{message="scsi.cmd.transportError"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_disk
         annotations:
-          summary: '🔴 {{ "{{ $labels.deviceType }}" }} device {{ "{{ $labels.deviceName }}" }}: Transport error'
+          summary: '🟡 {{ "{{ $labels.deviceType }}" }} device {{ "{{ $labels.deviceName }}" }}: Transport error'
           description: |
             '{{ "{{ $labels.deviceType }}" }} device {{ "{{ $labels.deviceName }}" }}: Transport error during execution of command: HA status 0x{{ "{{ $labels.ha_status }}" }}: cdb {{ "{{ $labels.cdb }}" }}.
             Disk info: {{ "{{ $labels.disk_information }}" }}

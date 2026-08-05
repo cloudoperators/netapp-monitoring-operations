@@ -100,12 +100,12 @@ groups:
         expr: snapmirror_lag_time_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: '🔴 Snapmirror Lag time (instance {{ "{{" }} $labels.instance {{ "}}" }})'
+          summary: '🟡 Snapmirror Lag time (instance {{ "{{" }} $labels.instance {{ "}}" }})'
           description: |
             'Snapmirror Lag time > 48h
             Source volume: {{ "{{" }} $labels.source_volume {{ "}}" }}, Source vserver: {{ "{{" }} $labels.source_vserver {{ "}}" }},
@@ -215,12 +215,12 @@ groups:
         expr: snapmirror_migrate_srcErr_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: '🔴 SnapMirror migration source error'
+          summary: '🟡 SnapMirror migration source error'
           description: |
             'SnapMirror migration from {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }} to {{ "{{ $labels.dstfiler }}" }}:{{ "{{ $labels.dstpath }}" }} failed with a source error.
             The alert resolves when the event "snapmirror.migrate.complete" is detected.
@@ -256,12 +256,12 @@ groups:
         expr: snapmirror_migrate_dstErr_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: '🔴 SnapMirror migration destination error'
+          summary: '🟡 SnapMirror migration destination error'
           description: |
             'SnapMirror migration from {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }} to {{ "{{ $labels.dstfiler }}" }}:{{ "{{ $labels.dstpath }}" }} failed with a destination error.
             The alert resolves when the event "snapmirror.migrate.complete" is detected.
@@ -297,12 +297,12 @@ groups:
         expr: replication_dst_resync_failed_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: '🔴 Replication resync failed'
+          summary: '🟡 Replication resync failed'
           description: |
             'Replication resync from {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }} to destination {{ "{{ $labels.dstpath }}" }} has failed. 
             The alert resolves when the event "replication.dst.resync.success" is detected.
@@ -338,7 +338,7 @@ groups:
         expr: wafl_snap_create_skip_reason_persistent == 1
         for: 2m
         labels:
-          severity: warning
+          severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
@@ -379,12 +379,12 @@ groups:
         expr: mgmt_snapmir_resync_fail_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: '🔴 SnapMirror resync failed'
+          summary: '🟡 SnapMirror resync failed'
           description: |
             'SnapMirror resync from source {{ "{{ $labels.srcpath }}" }} to destination {{ "{{ $labels.dstpath }}" }} has failed. 
             The alert resolves when the event "replication.dst.resync.success" is detected.
@@ -548,12 +548,12 @@ groups:
         expr: last_over_time(ems_events{message="moveagent.commitsrc.fail"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: '🔴 Vol Move Commit Source Volume Fail'
+          summary: '🟡 Vol Move Commit Source Volume Fail'
           description: |
             'Vol move commit source volume fail for volume with DSID {{ "{{ $labels.volume_dsid }}" }}
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -583,12 +583,12 @@ groups:
         expr: last_over_time(ems_events{message="wafl.mount.transient.error"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: '🔴 WAFL: Unable to mount volume {{ "{{ $labels.volume_name }}" }}'
+          summary: '🟡 WAFL: Unable to mount volume {{ "{{ $labels.volume_name }}" }}'
           description: |
             'WAFL: Unable to mount volume {{ "{{ $labels.volume_name }}" }} UUID {{ "{{ $labels.uuid }}" }} due to {{ "{{ $labels.reason }}" }}.
             Volume is taken offline due to transient errors.
@@ -602,12 +602,12 @@ groups:
         expr: last_over_time(ems_events{message="wafl.readdir.expired"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: '🔴 A READDIR file operation has expired'
+          summary: '🟡 A READDIR file operation has expired'
           description: |
             'A READDIR file operation has expired for the directory associated with volume {{ "{{ $labels.volume }}" }} snapshot ID {{ "{{ $labels.snapid }}" }} and inode {{ "{{ $labels.directory_inum }}" }}.
             You can find information specific to recent directories that have had READDIR file operations expire by using the 'diag' privilege nodeshell CLI command: "wafl readdir notice show" If a directory is indicated as sparse, it is recommended that you copy the contents of the directory to a new directory to remove the sparseness of the directory file. If a directory is not indicated as sparse and the directory is large, it is recommended that you reduce the size of the directory file by reducing the number of file entries in the directory.
@@ -620,12 +620,12 @@ groups:
         expr: last_over_time(ems_events{message="wafl.vv.vol.maxvols"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: '🔴 WAFL maximum amount of volumes reached'
+          summary: '🟡 WAFL maximum amount of volumes reached'
           description: |
             'Cannot configure FlexVol volume {{ "{{ $labels.vol }}" }} in aggregate {{ "{{ $labels.aggregate }}" }}: There are too many FlexVol volumes {{ "{{ $labels.count }}" }} on the system. The limit for {{ "{{ $labels.model }}" }} is {{ "{{ $labels.limit }}" }}.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -637,12 +637,12 @@ groups:
         expr: last_over_time(ems_events{message="mgmt.snapmir.ls.catchup.fail"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
-          summary: '🔴 SnapMirror catchup failure'
+          summary: '🟡 SnapMirror catchup failure'
           description: |
             'SnapMirror catchup failure for source {{ "{{ $labels.srcpath }}" }} to destination {{ "{{ $labels.dstpath }}" }}. error: {{ "{{ $labels.error }}" }} (Job ID: {{ "{{ $labels.jobID }}" }}) 
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 

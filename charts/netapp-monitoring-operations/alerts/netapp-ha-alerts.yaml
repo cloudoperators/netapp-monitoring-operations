@@ -114,12 +114,12 @@ groups:
         expr: callhome_reboot_takeover_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
-          summary: '🔴 Node {{ "{{ $labels.node }}" }} taken over due to reboot'
+          summary: '🟡 Node {{ "{{ $labels.node }}" }} taken over due to reboot'
           description: |
             'Node {{ "{{ $labels.node }}" }} has taken over its partner due to a reboot. The alert resolves when the event "sfo.giveback.complete" is detected.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -235,12 +235,12 @@ groups:
         expr: callhome_sfo_takeover_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
-          summary: '🔴 SFO takeover occurred on {{ "{{ $labels.node }}" }}'
+          summary: '🟡 SFO takeover occurred on {{ "{{ $labels.node }}" }}'
           description: |
             'A Storage Failover (SFO) takeover has occurred on node {{ "{{ $labels.node }}" }}. The alert resolves when the event "sfo.giveback.complete" is detected.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -276,7 +276,7 @@ groups:
         expr: sfo_PartialGiveback_persistent == 1
         for: 2m
         labels:
-          severity: warning
+          severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
@@ -359,12 +359,12 @@ groups:
         expr: ha_giveback_aggrOnlineFailed_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
-          summary: '🔴 Failed to bring aggregate {{ "{{ $labels.aggregate }}" }} online during giveback'
+          summary: '🟡 Failed to bring aggregate {{ "{{ $labels.aggregate }}" }} online during giveback'
           description: |
             'During a giveback operation on node {{ "{{ $labels.node }}" }}, aggregate {{ "{{ $labels.aggregate }}" }} failed to come online. 
             Manual intervention may be required. The alert resolves when the aggregate is back online ("raid.vol.state.online").
@@ -443,12 +443,12 @@ groups:
         expr: clam_partner_halting_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
-          summary: '🔴 Partner node is halting on {{ "{{ $labels.node }}" }}'
+          summary: '🟡 Partner node is halting on {{ "{{ $labels.node }}" }}'
           description: |
             'The partner node of {{ "{{ $labels.node }}" }} is halting. This will likely lead to a takeover. 
             The alert resolves when the event "cf.fm.takeoverComplete" is detected.
@@ -461,12 +461,12 @@ groups:
         expr: last_over_time(ems_events{message="rdb.ha.mboxError"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
-          summary: Bidirectional failover under the 'cluster HA' configuration is not currently functional due to problem with the on-disk mailboxes.
+          summary: '🟡 Bidirectional failover under the cluster HA configuration is not currently functional due to problem with the on-disk mailboxes.'
           description: |
            'Bidirectional failover under the 'cluster HA' configuration is not currently functional due to problem with the on-disk mailboxes.
            This message occurs when the system detects a problem with the 'cluster HA' on-disk mailboxes, resulting in failover being currently disabled. No data is at risk, but the situation should be addressed. Note: The 'cluster HA' configuration provides a bidirectional failover mechanism for the management processes in a two-node cluster.
@@ -497,12 +497,12 @@ groups:
         expr: last_over_time(ems_events{message="cf.fm.versionMismatch"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
-          summary: '🔴 Version mismatch between subsystems'
+          summary: '🟡 Version mismatch between subsystems'
           description: |
             'Subsystem {{ "{{ $labels.subsystem }}" }} version mismatch. Local version: {{ "{{ $labels.version }}" }}, partner version: {{ "{{ $labels.partner_version }}" }} - Takeover is not possible
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -514,12 +514,12 @@ groups:
         expr: last_over_time(ems_events{message="cf.fsm.takeover.noHeartbeat"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
-          summary: '🔴 No heartbeat detected for takeover' 
+          summary: '🟡 No heartbeat detected for takeover'
           description: |
             'No heartbeat detected for takeover process 
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -599,12 +599,12 @@ groups:
         expr: last_over_time(ems_events{message="callhome.sfo.personality"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_ha
         annotations:
-          summary: '🔴 Personality mismatch on cluster {{ "{{ $labels.netapp_cluster }}" }}'
+          summary: '🟡 Personality mismatch on cluster {{ "{{ $labels.netapp_cluster }}" }}'
           description: |
             'Personality mismatch on cluster {{ "{{ $labels.netapp_cluster }}" }}: {{ "{{ $labels.subject}}" }}
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 

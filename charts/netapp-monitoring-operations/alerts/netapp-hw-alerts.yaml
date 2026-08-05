@@ -32,12 +32,12 @@ groups:
         expr: monitor_fan_failed_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
-          summary: '🔴 Fan failed on {{ "{{ $labels.name }}" }}'
+          summary: '🟡 Fan failed on {{ "{{ $labels.name }}" }}'
           description: |
             'A fan has failed on node {{ "{{ $labels.name }}" }} (Cluster: {{ "{{ $labels.netapp_cluster }}" }}). This could lead to overheating. 
             The alert resolves when the event "monitor.fan.ok" is detected.
@@ -73,12 +73,12 @@ groups:
         expr: monitor_chassisPowerSupply_degraded_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
-          summary: '🔴 Chassis Power Supply Degraded on {{ "{{ $labels.name }}" }}'
+          summary: '🟡 Chassis Power Supply Degraded on {{ "{{ $labels.name }}" }}'
           description: |
             'A chassis power supply is degraded on node {{ "{{ $labels.name }}" }} (Cluster: {{ "{{ $labels.netapp_cluster }}" }}). 
             The alert resolves when the event "monitor.chassisPowerSupply.ok" is detected.
@@ -114,12 +114,12 @@ groups:
         expr: ses_status_currentError_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
-          summary: '🔴 SES Element Error on {{ "{{ $labels.node }}" }}'
+          summary: '🟡 SES Element Error on {{ "{{ $labels.node }}" }}'
           description: |
             'A SES (SCSI Enclosure Services) element on channel {{ "{{ $labels.prodChannel }}" }} on node {{ "{{ $labels.node }}" }} is reporting an error. 
             The alert resolves when the event "ses.status.currentInfo" is detected.
@@ -196,12 +196,12 @@ groups:
         expr: monitor_shelf_fault_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
-          summary: '🔴 Shelf fault detected on {{ "{{ $labels.node }}" }}'
+          summary: '🟡 Shelf fault detected on {{ "{{ $labels.node }}" }}'
           description: |
             'A shelf fault has been detected on node {{ "{{ $labels.node }}" }}, channel {{ "{{ $labels.channel }}" }}. This could impact disk accessibility. 
             The alert resolves when the event "monitor.shelf.fault.ok" is detected.
@@ -441,12 +441,12 @@ groups:
         expr: callhome_sp_hbt_stopped_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
-          summary: '🔴 Service Processor heartbeat stopped on {{ "{{ $labels.node }}" }}'
+          summary: '🟡 Service Processor heartbeat stopped on {{ "{{ $labels.node }}" }}'
           description: |
             'The heartbeat from the Service Processor (SP/BMC) on node {{ "{{ $labels.node }}" }} (Cluster: {{ "{{ $labels.netapp_cluster }}" }}) has stopped. 
             The SP might be offline or unresponsive. The alert resolves when the SP heartbeat resumes ("sp.heartbeat.resumed").
@@ -482,12 +482,12 @@ groups:
         expr: chassis_too_cool_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
-          summary: '🔴 Chassis too cool on cluster {{ "{{ $labels.netapp_cluster }}" }}'
+          summary: '🟡 Chassis too cool on cluster {{ "{{ $labels.netapp_cluster }}" }}'
           description: |
             'Chassis temperature on cluster {{ "{{ $labels.netapp_cluster }}" }} node {{ "{{ $labels.node }}" }}
             is too low: {{ "{{ $labels.describe_toocool }}" }}
@@ -524,12 +524,12 @@ groups:
         expr: chassis_too_warm_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
-          summary: '🔴 Chassis too warm on cluster {{ "{{ $labels.netapp_cluster }}" }}'
+          summary: '🟡 Chassis too warm on cluster {{ "{{ $labels.netapp_cluster }}" }}'
           description: |
             'Chassis temperature on cluster {{ "{{ $labels.netapp_cluster }}" }} node {{ "{{ $labels.node }}" }}
             is too high: {{ "{{ $labels.describe_toowarm }}" }}
@@ -625,12 +625,12 @@ groups:
         expr: last_over_time(ems_events{message="monitor.temp.unreadable"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
-          summary: '🔴 Controller Temperature Unreadable on node {{ "{{ $labels.node }}" }}'
+          summary: '🟡 Controller Temperature Unreadable on node {{ "{{ $labels.node }}" }}'
           description: |
             'Controller Temperature Unreadable on node {{ "{{ $labels.node }}" }} cluster {{ "{{ $labels.netapp_cluster }}" }}: {{ "{{ $labels.sensor_name }}" }}
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -642,12 +642,12 @@ groups:
         expr: last_over_time(ems_events{message="nand.predict.fail"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
-          summary: '🔴 NVRAM NAND predict failure on node {{ "{{ $labels.node }}" }}'
+          summary: '🟡 NVRAM NAND predict failure on node {{ "{{ $labels.node }}" }}'
           description: |
             'NVRAM NAND predict failure on node {{ "{{ $labels.node }}" }} cluster {{ "{{ $labels.netapp_cluster }}" }}: {{ "{{ $labels.device }}" }}
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -659,12 +659,12 @@ groups:
         expr: last_over_time(ems_events{message="nodewatchdog.node.failure"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
-          summary: '🔴 Data ONTAP has experienced a serious internal error: {{ "{{ $labels.condition }}" }}'
+          summary: '🟡 Data ONTAP has experienced a serious internal error: {{ "{{ $labels.condition }}" }}'
           description: |
             'Data ONTAP has experienced a serious internal error: {{ "{{ $labels.condition }}" }}. This might cause the node experiencing the problem to become unresponsive to data access.
             The affected process may produce a core file which can be analyzed. Contact NetApp technical support if the condition persists and possible analysis of the core file.
@@ -712,12 +712,12 @@ groups:
         expr: last_over_time(ems_events{message="callhome.fcp.adapter.failed"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
-          summary: '🔴 FCP Adapter Failed'
+          summary: '🟡 FCP Adapter Failed'
           description: |
             'Call home for {{ "{{ $labels.subject }}" }} 
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
