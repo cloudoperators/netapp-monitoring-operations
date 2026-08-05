@@ -32,12 +32,12 @@ groups:
         expr: nvmem_battery_capacity_low_persistent == 1
         for: 2m
         labels:
-          severity: warning
+          severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_nvdimm
         annotations:
-          summary: '🟡 NVMEM Battery Capacity Low on {{ "{{ $labels.name }}" }}'
+          summary: '🔴 NVMEM Battery Capacity Low on {{ "{{ $labels.name }}" }}'
           description: |
             'The NVMEM battery capacity is low on node {{ "{{ $labels.name }}" }} (Cluster: {{ "{{ $labels.netapp_cluster }}" }}). 
             The alert resolves when the event "nvmem.battery.capacity.normal" is detected.
@@ -91,12 +91,12 @@ groups:
         expr: (ems_events{message="callhome.nvdimm.cecc"})
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_nvdimm
         annotations:
-          summary: '🔴 NVDIMM ECC Error'
+          summary: '🟡 NVDIMM ECC Error'
           description: |
             'NVDIMM ECC Errors - review cluster logs for further details.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 

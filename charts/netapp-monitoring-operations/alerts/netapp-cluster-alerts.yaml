@@ -99,7 +99,7 @@ groups:
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_cluster
         annotations:
-          summary: 'Error encountered in mroot I/O: {{ "{{ $labels.message }}" }}'
+          summary: '🔴 Error encountered in mroot I/O: {{ "{{ $labels.message }}" }}'
           description: |
            'Error encountered in mroot I/O: {{ "{{ $labels.message }}" }}
            This message occurs when the cluster management Data Replication Module determines that I/O operations on the node's mroot filesystem are failing. This could indicate that the mroot filesystem is full, not mounted, or is encountering other error conditions.

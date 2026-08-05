@@ -237,12 +237,12 @@ groups:
         expr: health_monitor_alert_failed_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_misc
         annotations:
-          summary: '🔴 Health Alert on cluster {{ "{{ $labels.netapp_cluster }}" }}'
+          summary: '🟡 Health Alert on cluster {{ "{{ $labels.netapp_cluster }}" }}'
           description: |
             'Health Alert raised on cluster {{ "{{ $labels.netapp_cluster }}" }} node {{ "{{ $labels.node }}" }}: {{ "{{ $labels.detailed_info }}" }}.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -313,12 +313,12 @@ groups:
         expr: qos_monitor_memory_low_persistent == 1
         for: 2m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_misc
         annotations:
-          summary: '🔴 QoS dynamic memory has reached its limit. Some QoS features might operate in a limited capacity.'
+          summary: '🟡 QoS dynamic memory has reached its limit. Some QoS features might operate in a limited capacity.'
           description: |
             'QoS dynamic memory has reached its limit. Some QoS features might operate in a limited capacity.
             Some active workloads or streams should be deleted to free up memory. Use the 'statistics show -object workload -counter ops' command to determine which workloads are active. Active workloads will show non-zero ops. Then use the 'workload delete [workload name]' command multiple times to remove particular workloads. Alternatively, use the 'stream delete -workload [workload name] *' command to delete the associated streams from the active workload.
@@ -331,7 +331,7 @@ groups:
         expr: last_over_time(ems_events{message="sis.max.saving.near"}[5m]) == 1
         for: 5m
         labels:
-          severity: warning
+          severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_misc
@@ -349,12 +349,12 @@ groups:
         expr: last_over_time(ems_events{message="sis.max.saving.reached"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_misc
         annotations:
-          summary: '🔴 Maximum savings limit reached on volume {{ "{{ $labels.volume }}" }}'
+          summary: '🟡 Maximum savings limit reached on volume {{ "{{ $labels.volume }}" }}'
           description: |
             'Maximum savings limit nearly reached on volume {{ "{{ $labels.volume }}" }}
             This message occurs when Single Instance Storage (SIS) savings on the volume reaches its maximum limit. No further savings can be realized on the volume.
@@ -367,12 +367,12 @@ groups:
         expr: last_over_time(ems_events{message="sk.panic"}[5m]) == 1
         for: 5m
         labels:
-          severity: critical
+          severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_misc
         annotations:
-          summary: '🔴 Controller panic'
+          summary: '🟡 Controller panic'
           description: |
             'Panic String: {{ "{{ $labels.reason }}" }}
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
@@ -443,7 +443,7 @@ groups:
         expr: upgrademgr_update_pausedErr_persistent == 1
         for: 2m
         labels:
-          severity: warning
+          severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_misc
@@ -461,7 +461,7 @@ groups:
         expr: last_over_time(ems_events{message="license.check.warn.expiring"}[5m]) == 1
         for: 5m
         labels:
-          severity: warning
+          severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_misc
@@ -529,7 +529,7 @@ groups:
         expr: last_over_time(ems_events{message="sis.changelog.full"}[5m]) == 1
         for: 5m
         labels:
-          severity: warning
+          severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_misc
@@ -551,7 +551,7 @@ groups:
           team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_misc
         annotations:
-          summary: '🔴 AutoSupport HTTPS transport disabled'
+          summary: '🟡 AutoSupport HTTPS transport disabled'
           description: |
             'The web server httpd with ID {{ "{{ $labels.id }}" }} exited due to {{ "{{ $labels.cause }}" }}. It will attempt to restart. 
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
