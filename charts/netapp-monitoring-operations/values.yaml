@@ -7,7 +7,7 @@ prometheusRules:
   # Prometheus ruleSelector so the rules are picked up; set whatever key/value the
   # selector expects (here `prometheus: storage`) and add any extra labels below.
   labels:
-    prometheus: storage
+    prometheus: storage-metrics-product
   # Enable or disable an entire alert file. One toggle per file; the key is the
   # camelCase form of the file name. Set a key to false to drop that file's rules.
   ruleGroups:
@@ -39,7 +39,7 @@ podMonitor:
   # podMonitorSelector so the resource is picked up; set whatever key/value the
   # selector expects (here `prometheus: storage`) and add any extra labels below.
   labels:
-    prometheus: storage
+    prometheus: storage-metrics-product
   # Namespace(s) where your target deployment pods run.
   targetNamespaces:
     - storage-product
