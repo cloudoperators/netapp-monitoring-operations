@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: netapp-monitoring-operations
 spec:
-  version: 1.0.8
+  version: 1.0.9
   displayName: NetApp Monitoring operations bundle
   description: Operations bundle for the NetApp storage backend
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/netapp-monitoring-operations/refs/heads/main/README.md
@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: netapp-monitoring-operations
     repository: oci://ghcr.io/cloudoperators/netapp-monitoring-operations/charts
-    version: 1.0.8
+    version: 1.0.9
   options:
     - name: prometheusRules.create
       description: Create Prometheus alerting rules (PrometheusRule resources)
@@ -37,6 +37,11 @@ spec:
       description: Labels applied to the PodMonitor; must match the Prometheus podMonitorSelector (key `prometheus`, value `storage` or `storage-metrics-product`) so the resource is picked up
       required: false
       type: map
+    - name: podMonitor.create
+      description: Create the PodMonitor resource. Set false for a rules-only instance (e.g. when Prometheus is functionally sharded and PodMonitors come from separate per-shard instances).
+      required: false
+      default: true
+      type: bool
     - name: podMonitor.targetNamespaces
       description: Namespace(s) where the target poller pods run
       required: true
