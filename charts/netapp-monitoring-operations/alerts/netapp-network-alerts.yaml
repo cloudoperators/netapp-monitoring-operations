@@ -516,24 +516,6 @@ groups:
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
-  - name: netif_uncorr_ecc_error
-    rules:
-      - alert: NeworkInterfaceUncorrECCError
-        expr: (ems_events{message="netif.uncorEccError"})
-        for: 5m
-        labels:
-          severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_network
-        annotations:
-          summary: '🔴 Unrecoverable ECC error on network interface {{ "{{ $labels.ifName }}" }}.'
-          description: |
-            'Unrecoverable ECC error on network interface {{ "{{ $labels.ifName }}" }}.
-            Reboot the controller. If the problem persists, replace the component associated with the network interface (PCIe card or controller motherboard). If the problem persists, contact NetApp technical support.
-            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
-            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
-
   - name: node_low_network_mbuf
     rules:
       - alert: NodeLowNetworkMbuf
@@ -603,24 +585,6 @@ groups:
           description: |
             'LIF {{ "{{ $labels.vifname }}" }} with ID {{ "{{ $labels.vifid }}" }} (on virtual server {{ "{{ $labels.vsrvid }}" }}), IP address {{ "{{ $labels.vifip }}" }}, is configured in the VIFMgr but is not visible in the user interface.
             Using information from the message, use the "network interface ids create" diag privilege command to create the ID.
-            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
-            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
-
-  - name: vifmgr_lif_on_degraded_port
-    rules:
-      - alert: VIFMgrLIFOnDegradedPort
-        expr: (ems_events{message="vifmgr.lifOnDegPort.noPorts"})
-        for: 5m
-        labels:
-          severity: warning
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_network
-        annotations:
-          summary: '🟡 VIFmgr LIF on degraded port.'
-          description: |
-            'LIF {{ "{{ $labels.vifname }}" }} on virtual server {{ "{{ $labels.vsrvid }}" }}, IP address {{ "{{ $labels.vifip }}" }}is currently hosted on node {{ "{{ $labels.host_node }}" }}, port {{ "{{ $labels.host_port }}" }}, whose health status is degraded.
-            Add ports to the broadcast domain or failover group used by the affected LIF. Use the "network interface show -failover" command to review the currently assigned failover targets for each LIF.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
@@ -1015,7 +979,7 @@ groups:
 
   - name: netif_uncorr_ecc_error
     rules:              
-      - alert: UncorEccerror
+      - alert: NetworkInterfaceUncorrECCError
         expr: last_over_time(ems_events{message="netif.uncorEccError"}[5m]) == 1
         for: 5m
         labels:
@@ -1081,7 +1045,7 @@ groups:
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
-  - name: vifmgr_lif_on_degraded_port
+  - name: vifmgr_port_degraded_lifhosted
     rules:                          
       - alert: VifmgrPortDeglifHosted
         expr: last_over_time(ems_events{message="vifmgr.portDeg.lifHosted"}[5m]) == 1
@@ -1097,6 +1061,25 @@ groups:
             LIF {{ "{{ $labels.vif_name }}" }} on virtual server {{ "{{ $labels.virtual_server_id }}" }} is hosted on a degraded port {{ "{{ $labels.port_name }}" }} on node {{ "{{ $labels.node_name }}" }} 
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+  
+  - name: vifmgr_lif_on_degraded_port
+    rules:
+      - alert: VIFMgrLIFOnDegradedPort
+        expr: (ems_events{message="vifmgr.lifOnDegPort.noPorts"})
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: '🟡 VIFmgr LIF on degraded port.'
+          description: |
+            'LIF {{ "{{ $labels.vifname }}" }} on virtual server {{ "{{ $labels.vsrvid }}" }}, IP address {{ "{{ $labels.vifip }}" }}is currently hosted on node {{ "{{ $labels.host_node }}" }}, port {{ "{{ $labels.host_port }}" }}, whose health status is degraded.
+            Add ports to the broadcast domain or failover group used by the affected LIF. Use the "network interface show -failover" command to review the currently assigned failover targets for each LIF.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+   
  {{- else }}
  groups: []
  {{- end }}
