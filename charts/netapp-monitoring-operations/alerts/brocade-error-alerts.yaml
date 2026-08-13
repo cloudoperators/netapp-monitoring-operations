@@ -48,7 +48,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: brocade
         annotations:
           summary: "New Brocade error MessageID: ({{`{{ $labels.messageid }}`}})"
@@ -69,7 +69,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: brocade
         annotations:
           summary: "Brocade error MessageID: ({{`{{ $labels.messageid }}`}})"
@@ -86,7 +86,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: brocade
         annotations:
           summary: "Brocade error MessageID: ({{`{{ $labels.messageid }}`}})"

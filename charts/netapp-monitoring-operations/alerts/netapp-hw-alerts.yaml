@@ -34,7 +34,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 Fan failed on {{ "{{ $labels.name }}" }}'
@@ -75,7 +75,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 Chassis Power Supply Degraded on {{ "{{ $labels.name }}" }}'
@@ -116,7 +116,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 SES Element Error on {{ "{{ $labels.node }}" }}'
@@ -157,7 +157,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 SES Element Warning on {{ "{{ $labels.node }}" }}'
@@ -198,7 +198,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 Shelf fault detected on {{ "{{ $labels.node }}" }}'
@@ -239,7 +239,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 NVRAM batteries are low on {{ "{{ $labels.node }}" }}'
@@ -279,7 +279,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 NVMEM battery warning on {{ "{{ $labels.node }}" }}'
@@ -320,7 +320,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 SES multipath request error on {{ "{{ $labels.node }}" }}'
@@ -361,7 +361,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🔴 Global system status is CRITICAL on {{ "{{ $labels.node }}" }}'
@@ -402,7 +402,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 Service Processor not configured on {{ "{{ $labels.node }}" }}'
@@ -443,7 +443,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 Service Processor heartbeat stopped on {{ "{{ $labels.node }}" }}'
@@ -484,7 +484,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 Chassis too cool on cluster {{ "{{ $labels.netapp_cluster }}" }}'
@@ -526,7 +526,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 Chassis too warm on cluster {{ "{{ $labels.netapp_cluster }}" }}'
@@ -567,7 +567,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🔴 {{ "{{ $labels.product_channel }}" }} {{ "{{ $labels.module_type }}" }} error for {{ "{{ $labels.type_text }}" }} {{ "{{ $labels.module_number }}" }}'
@@ -608,7 +608,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 {{ "{{ $labels.prodChannel }}" }} temperature warning for {{ "{{ $labels.typeText }}" }} {{ "{{ $labels.thermNumber }}" }}'
@@ -627,7 +627,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 Controller Temperature Unreadable on node {{ "{{ $labels.node }}" }}'
@@ -644,7 +644,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 NVRAM NAND predict failure on node {{ "{{ $labels.node }}" }}'
@@ -661,7 +661,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 Data ONTAP has experienced a serious internal error: {{ "{{ $labels.condition }}" }}'
@@ -680,7 +680,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 The SFP in FC adapter {{ "{{ $labels.adapter }}" }} is not valid.'
@@ -697,7 +697,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 NVRAM Excessive CECC errors'
@@ -714,7 +714,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_hw
         annotations:
           summary: '🟡 FCP Adapter Failed'

@@ -30,7 +30,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Volume {{ "{{ $labels.volume }}" }} inodes are nearly full'
@@ -66,7 +66,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🔴 Volume {{ "{{ $labels.volume }}" }} inodes are full'
@@ -102,7 +102,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Snapmirror Lag time (instance {{ "{{" }} $labels.instance {{ "}}" }})'
@@ -141,7 +141,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Volume {{ "{{ $labels.volume }}" }} is nearly full'
@@ -177,7 +177,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🔴 Volume {{ "{{ $labels.volume }}" }} is full'
@@ -217,7 +217,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 SnapMirror migration source error'
@@ -258,7 +258,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 SnapMirror migration destination error'
@@ -299,7 +299,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Replication resync failed'
@@ -340,7 +340,7 @@ groups:
         labels:
           severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Snapshot creation skipped for volume {{ "{{ $labels.vol }}" }}'
@@ -381,7 +381,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 SnapMirror resync failed'
@@ -422,7 +422,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🔴 Volume {{ "{{ $labels.vol }}" }} is in nvfailed state'
@@ -463,7 +463,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Max token count reached for volume {{ "{{ $labels.volume_name }}" }}'
@@ -481,7 +481,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 NVRAM failure invalidated filehandles'
@@ -499,7 +499,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Directory approaching maxdirsize'
@@ -516,7 +516,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🔴 Volume full {{ "{{ $labels.volume }}" }}'
@@ -533,7 +533,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Volume nearly full {{ "{{ $labels.volume }}" }}'
@@ -550,7 +550,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Vol Move Commit Source Volume Fail'
@@ -567,7 +567,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Directory size for file ID {{ "{{ $labels.fileid }}" }} in volume {{ "{{ $labels.vol }}" }} is approaching the maximum directory size (maxdirsize) limit'
@@ -585,7 +585,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 WAFL: Unable to mount volume {{ "{{ $labels.volume_name }}" }}'
@@ -604,7 +604,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 A READDIR file operation has expired'
@@ -622,7 +622,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 WAFL maximum amount of volumes reached'
@@ -639,7 +639,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 SnapMirror catchup failure'
@@ -656,7 +656,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🔴 Node Root Volume Space Full'
@@ -673,7 +673,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Asynchronous Vault Update Failed'
@@ -690,7 +690,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Asynchronous Mirror and Vault Initialize Failed'
@@ -707,7 +707,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🔴 Mirror Replication Update Failed'
@@ -724,7 +724,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🟡 Asynchronous Vault Initialize Failed'
@@ -741,7 +741,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_volume
         annotations:
           summary: '🔴 Scheduled snapshot creation failed'

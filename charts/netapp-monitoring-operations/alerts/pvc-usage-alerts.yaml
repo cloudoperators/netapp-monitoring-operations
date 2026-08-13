@@ -16,7 +16,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: pvc_usage
         annotations:
           summary: "PVC is more than 75% full for Prometheus"
@@ -33,7 +33,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: pvc_usage
         annotations:
           summary: "PVC is more than 85% full for Prometheus"
@@ -50,7 +50,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: pvc_usage
         annotations:
           summary: "PVC is more than 75% full for Thanos Compactor"
@@ -67,7 +67,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: pvc_usage
         annotations:
           summary: "PVC is more than 85% full for Thanos Compactor"
@@ -84,7 +84,7 @@ groups:
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: pvc_usage
         annotations:
           summary: "PVC is more than 75% full for Grafana"
@@ -101,7 +101,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
           component: pvc_usage
         annotations:
           summary: "PVC is more than 85% full for Grafana"
