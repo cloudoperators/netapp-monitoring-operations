@@ -7,7 +7,7 @@ groups:
     rules:
       - alert: NbladeNfsV4PoolExhaust
         expr: last_over_time(ems_events{message="Nblade.nfsV4PoolExhaust"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -24,7 +24,7 @@ groups:
     rules:
       - alert: NFSListenersFailure
         expr: last_over_time(ems_events{message="mgmt.nfslisteners.failure"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}

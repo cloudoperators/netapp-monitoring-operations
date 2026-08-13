@@ -567,7 +567,7 @@ groups:
     rules:
       - alert: AggrRelocationFailed
         expr: last_over_time(ems_events{message="arl.netra.ca.check.failed"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -584,7 +584,7 @@ groups:
     rules:
       - alert: AggrGivebackObjStoreFailed
         expr: last_over_time(ems_events{message="gb.netra.ca.check.failed"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -601,7 +601,7 @@ groups:
     rules:
       - alert: UninitializedParityVol
         expr: last_over_time(ems_events{message="raid.uninitialized.parity.vol"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}

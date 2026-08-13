@@ -7,7 +7,7 @@ groups:
     rules:
       - alert: AppLogError
         expr: last_over_time(ems_events{message="app.log.err"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -22,7 +22,7 @@ groups:
 
       - alert: NoMediatorMailbox
         expr: last_over_time(ems_events{message="fmmb.mediator.noLckdisk"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -37,7 +37,7 @@ groups:
 
       - alert: NullMediatorMailbox
         expr: last_over_time(ems_events{message="fmmb.mediator.nullLckdiskSuggest"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -52,7 +52,7 @@ groups:
 
       - alert: MediatorCACertExpired
         expr: last_over_time(ems_events{message="sm.mediator.cacert.expired"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -68,7 +68,7 @@ groups:
 
       - alert: MediatorCACertExpiring
         expr: last_over_time(ems_events{message="sm.mediator.cacert.expiring"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -84,7 +84,7 @@ groups:
 
       - alert: SMMediatorMisconfigured
         expr: last_over_time(ems_events{message="sm.mediator.misconfigured"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -100,7 +100,7 @@ groups:
 
       - alert: SMMediatorRemoved
         expr: last_over_time(ems_events{message="sm.mediator.removed"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -115,7 +115,7 @@ groups:
 
       - alert: SMMediatorRemovedForce
         expr: last_over_time(ems_events{message="sm.mediator.removed.force"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -131,7 +131,7 @@ groups:
 
       - alert: SMMediatorServerCertExpired
         expr: last_over_time(ems_events{message="sm.mediator.serverc.expired"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -147,7 +147,7 @@ groups:
 
       - alert: SMMediatorServerCertExpiring
         expr: last_over_time(ems_events{message="sm.mediator.serverc.expiring"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -163,7 +163,7 @@ groups:
 
       - alert: SMMediatorUnreachable
         expr: last_over_time(ems_events{message="sm.mediator.unreachable"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -179,7 +179,7 @@ groups:
 
       - alert: SMMediatorUnusable
         expr: last_over_time(ems_events{message="sm.mediator.unusable"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}

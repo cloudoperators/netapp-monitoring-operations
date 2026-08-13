@@ -253,7 +253,7 @@ groups:
     rules:
       - alert: MemoryMapFailed
         expr: last_over_time(ems_events{message="kern.vm.mmap.return"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -270,7 +270,7 @@ groups:
     rules:
       - alert: KeyManagerRestoreInvalidKey
         expr: last_over_time(ems_events{message="km.restore.invalid.key"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -329,7 +329,7 @@ groups:
     rules:
       - alert: SISMaxSavingsNear
         expr: last_over_time(ems_events{message="sis.max.saving.near"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -347,7 +347,7 @@ groups:
     rules:
       - alert: SISMaxSavingsReached
         expr: last_over_time(ems_events{message="sis.max.saving.reached"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -365,7 +365,7 @@ groups:
     rules:
       - alert: ControllerPanic
         expr: last_over_time(ems_events{message="sk.panic"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -382,7 +382,7 @@ groups:
     rules:
       - alert: vSphereUnreachable
         expr: last_over_time(ems_events{message="vsa.vsphere.unreachable"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -400,7 +400,7 @@ groups:
     rules:
       - alert: vSphereNoAuth
         expr: last_over_time(ems_events{message="vsa.vsphere.noauth"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -459,7 +459,7 @@ groups:
     rules:
       - alert: LicenseExpiring
         expr: last_over_time(ems_events{message="license.check.warn.expiring"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -476,7 +476,7 @@ groups:
     rules:
       - alert: CertExpired
         expr: last_over_time(ems_events{message="mgmtgwd.certificate.expired"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -493,7 +493,7 @@ groups:
     rules:
       - alert: CertExpiring
         expr: last_over_time(ems_events{message="mgmtgwd.certificate.expiring"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -510,7 +510,7 @@ groups:
     rules:
       - alert: SignCertExpired
         expr: last_over_time(ems_events{message="mgmtgwd.sign.cert.expired"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -527,7 +527,7 @@ groups:
     rules:
       - alert: ChangeLogFull
         expr: last_over_time(ems_events{message="sis.changelog.full"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -544,7 +544,7 @@ groups:
     rules:            
       - alert: HTTPSTransportDisabled
         expr: last_over_time(ems_events{message="spm.httpd.process.exit"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -561,7 +561,7 @@ groups:
     rules:                          
       - alert: RootVolNoSpace
         expr: last_over_time(ems_events{message="mgmtgwd.rootvolrec.low.space"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}

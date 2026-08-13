@@ -7,7 +7,7 @@ groups:
     rules:
       - alert: ShadowCopyFail
         expr: last_over_time(ems_events{message="cifs.shadowcopy.failure"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -25,7 +25,7 @@ groups:
     rules: 
       - alert: CIFSManyAuths
         expr: last_over_time(ems_events{message="Nblade.cifsManyAuths"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -43,7 +43,7 @@ groups:
     rules: 
       - alert: CIFSAuthProblems
         expr: last_over_time(ems_events{message="secd.cifsAuth.problem", failureDetail=~".*KRB5KDC_ERR_S_PRINCIPAL_UNKNOWN.*"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -60,7 +60,7 @@ groups:
     rules:
       - alert: DCOutOfPipes
         expr: last_over_time(ems_events{message="secd.dc.out.of.pipe.instances"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -79,7 +79,7 @@ groups:
     rules:
       - alert: NetlogonNoServers
         expr: last_over_time(ems_events{message="secd.netlogon.noServers"}[1m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -96,7 +96,7 @@ groups:
     rules:
       - alert: SecdRpcServerRequestDropped
         expr: (ems_events{message="secd.rpc.server.request.dropped"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}

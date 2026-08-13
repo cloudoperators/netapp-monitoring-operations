@@ -121,7 +121,7 @@ groups:
     rules:
       - alert: DiskExceedsAvgIOLatencyThreshold
         expr: (ems_events{message="shm.threshold.highIOLatency"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -180,7 +180,7 @@ groups:
     rules:
       - alert: DiskMediumError
         expr: last_over_time(ems_events{message="disk.ioMediumError"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -198,7 +198,7 @@ groups:
     rules:
       - alert: DiskOutOfService
         expr: last_over_time(ems_events{message="disk.outOfService"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -216,7 +216,7 @@ groups:
     rules:
       - alert: SCSICmdTransportError
         expr: last_over_time(ems_events{message="scsi.cmd.transportError"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -234,7 +234,7 @@ groups:
     rules:
       - alert: DrivePhyDisableerror
         expr: last_over_time(ems_events{message="ds.sas.drivephy.disableErr"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -253,7 +253,7 @@ groups:
     rules:              
       - alert: diskErrUnsupported
         expr: last_over_time(ems_events{message="disk.init.err.unsupported"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -270,7 +270,7 @@ groups:
     rules: 
       - alert: UnownedDiskReminder
         expr: last_over_time(ems_events{message="unowned.disk.reminder"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}

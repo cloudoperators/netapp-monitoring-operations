@@ -477,7 +477,7 @@ groups:
     rules:
       - alert: WAFLVolInvalidateFH
         expr: (ems_events{message="wafl.vol.invalidate.fh"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -495,7 +495,7 @@ groups:
     rules:
       - alert: WAFLDirSizeMaxWarning
         expr: (ems_events{message="wafl.dir.size.max.warning"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -512,7 +512,7 @@ groups:
     rules:
       - alert: VolFullAlert
         expr: last_over_time(ems_events{message="monitor.volume.full"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -529,7 +529,7 @@ groups:
     rules:
       - alert: VolNearlyFullAlert
         expr: last_over_time(ems_events{message="monitor.volume.nearlyFull"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -546,7 +546,7 @@ groups:
     rules:
       - alert: VolMoveCommitSrcFail
         expr: last_over_time(ems_events{message="moveagent.commitsrc.fail"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -563,7 +563,7 @@ groups:
     rules:
       - alert: WAFLDirSizeWarning
         expr: last_over_time(ems_events{message="wafl.dir.size.warning"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -581,7 +581,7 @@ groups:
     rules:
       - alert: WAFLMountTransientError
         expr: last_over_time(ems_events{message="wafl.mount.transient.error"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -600,7 +600,7 @@ groups:
     rules:
       - alert: WAFLReaddirExpired
         expr: last_over_time(ems_events{message="wafl.readdir.expired"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -618,7 +618,7 @@ groups:
     rules:
       - alert: WAFLMaxVolumeLimit
         expr: last_over_time(ems_events{message="wafl.vv.vol.maxvols"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -635,7 +635,7 @@ groups:
     rules:
       - alert: SnapMirrorCatchupFail
         expr: last_over_time(ems_events{message="mgmt.snapmir.ls.catchup.fail"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -652,7 +652,7 @@ groups:
     rules:
       - alert: VserverRootVolumeFull
         expr: last_over_time(ems_events{message="vserver.rootVolume.full"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -669,7 +669,7 @@ groups:
     rules:            
       - alert: snapvaultOpNotComplete
         expr: last_over_time(ems_events{message="snapvault.dst.opNotComplete"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -686,7 +686,7 @@ groups:
     rules:            
       - alert: mgmtSnapmirInitFail
         expr: last_over_time(ems_events{message="mgmt.snapmir.init.fail"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -703,7 +703,7 @@ groups:
     rules:             
       - alert: SnapmirrorStatusUpdateStatusErr
         expr: last_over_time(ems_events{message="snapmirror.status.updateStatusErr"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -720,7 +720,7 @@ groups:
     rules:              
       - alert: SnapvaultTgtFailure
         expr: last_over_time(ems_events{message="snapvault.tgt.failure"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -737,7 +737,7 @@ groups:
     rules:                          
       - alert: SchedSnapCreateFail
         expr: last_over_time(ems_events{message="mgmtgwd.schedSnap.createFail"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}

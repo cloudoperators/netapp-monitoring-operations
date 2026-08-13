@@ -459,7 +459,7 @@ groups:
     rules:    
       - alert: HAMboxDiskError
         expr: last_over_time(ems_events{message="rdb.ha.mboxError"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -478,7 +478,7 @@ groups:
     rules:
       - alert: TakeoverFailed
         expr: last_over_time(ems_events{message="cf.fm.takeoverFailed"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -495,7 +495,7 @@ groups:
     rules:
       - alert: VersionMismatch
         expr: last_over_time(ems_events{message="cf.fm.versionMismatch"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -512,7 +512,7 @@ groups:
     rules:
       - alert: TakeoverNoHeartbeat
         expr: last_over_time(ems_events{message="cf.fsm.takeover.noHeartbeat"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -529,7 +529,7 @@ groups:
     rules:
       - alert: TakeoverHung
         expr: last_over_time(ems_events{message="cf.fsm.takeoverHung"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -546,7 +546,7 @@ groups:
     rules:
       - alert: NotifyCfgFailed
         expr: last_over_time(ems_events{message="cf.hwassist.notifyCfgFailed"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -563,7 +563,7 @@ groups:
     rules:
       - alert: TakeoverDisabled
         expr: last_over_time(ems_events{message="cf.takeover.disabled"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -580,7 +580,7 @@ groups:
     rules:
       - alert: ICInterconnectLinkDown
         expr: (ems_events{message="ic.HAInterconnectLinkDown"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -597,7 +597,7 @@ groups:
     rules:                          
       - alert: personalityMismatchError
         expr: last_over_time(ems_events{message="callhome.sfo.personality"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}

@@ -7,7 +7,7 @@ groups:
     rules:
       - alert: ClusterSwitchPortCRCerrors
         expr: (ems_events{message="vifmgr.cluscheck.hwerrors"})
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -24,7 +24,7 @@ groups:
     rules:
       - alert: ClusterSwitchReboot
         expr: (ems_events{message="cluster.switch.reboot"})
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -41,7 +41,7 @@ groups:
     rules:
       - alert: NoNeighbors
         expr: last_over_time(ems_events{message="clus.net.noNeighbors"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -58,7 +58,7 @@ groups:
     rules:
       - alert: RecoveryFailed
         expr: last_over_time(ems_events{message="rdb.recovery.failed"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -75,7 +75,7 @@ groups:
     rules: 
       - alert: RDBCorruption
         expr: last_over_time(ems_events{message="rdb.corruption.reported"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -92,7 +92,7 @@ groups:
     rules: 
       - alert: RDBIOFailure
         expr: last_over_time(ems_events{message="rdb.env.IOFailure"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -110,7 +110,7 @@ groups:
     rules:  
       - alert: RDBEnvProcessDuplicate
         expr: last_over_time(ems_events{message="rdb.env.processDuplicate"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -128,7 +128,7 @@ groups:
     rules:  
       - alert: RDBEnvReplicaCorrupt
         expr: last_over_time(ems_events{message="rdb.env.replicaCorrupt"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -146,7 +146,7 @@ groups:
     rules:            
       - alert: RDBInternalError
         expr: last_over_time(ems_events{message="rdb.internal.error"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -164,7 +164,7 @@ groups:
     rules:            
       - alert: NTPDProcessExit
         expr: last_over_time(ems_events{message="spm.ntpd.process.exit"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -181,7 +181,7 @@ groups:
     rules: 
       - alert: VIFmgrProcessExit
         expr: last_over_time(ems_events{message="spm.vifmgr.process.exit"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
