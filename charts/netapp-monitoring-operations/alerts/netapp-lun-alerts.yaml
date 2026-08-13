@@ -43,7 +43,7 @@ groups:
     rules:
       - alert: LUNNVfail
         expr: (ems_events{message="LUN.nvfail.vol.proc.complete"})
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -59,8 +59,8 @@ groups:
   - name: lun_vol_no_space
     rules:
       - alert: LUNVolNoSpace
-        expr: last_over_time(ems_events{message="LUN.vol.no.space"}[1m]) == 1
-        for: 5m
+        expr: last_over_time(ems_events{message="LUN.vol.no.space"}[5m]) == 1
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}

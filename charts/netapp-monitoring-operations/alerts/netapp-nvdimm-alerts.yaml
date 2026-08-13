@@ -89,7 +89,7 @@ groups:
     rules:
       - alert: NVdimmECCErrors
         expr: (ems_events{message="callhome.nvdimm.cecc"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}

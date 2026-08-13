@@ -74,23 +74,6 @@ groups:
             'LIF {{ "{{ $labels.lif }}" }} on node {{ "{{ $labels.node }}" }},
             cluster {{ "{{ $labels.netapp_cluster }}" }} is not at home.'
 
-  - name: ic_link_down
-    rules:
-      - alert: ICInterconnectLinkDown
-        expr: (ems_events{message="ic.HAInterconnectLinkDown"})
-        for: 5m
-        labels:
-          severity: warning
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_network
-        annotations:
-          summary: '🟡 HA interconnect link down'
-          description: |
-            'HA interconnect link is down on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }}.
-            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
-            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
-
   - name: vifmgr_cluscheck_lifdown_final
     interval: 1m
     rules:
@@ -259,7 +242,7 @@ groups:
     rules:
       - alert: NWInterfaceFatalErrorDriver
         expr: (ems_events{message="netif.fatal.err"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -276,7 +259,7 @@ groups:
     rules:
       - alert: OverprovisioningOfDataLIF
         expr: (ems_events{message="vifmgr.lifs.overcapacity"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -293,7 +276,7 @@ groups:
     rules:
       - alert: NeworkInterfaceNegotiationFailure
         expr: (ems_events{message="netif.autoNegFailed"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -310,7 +293,7 @@ groups:
     rules:
       - alert: NeworkInterfaceBadOversizePacket
         expr: (ems_events{message="netif.badOversizePacket"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -328,7 +311,7 @@ groups:
     rules:
       - alert: NeworkInterfaceMaxCPRReached
         expr: (ems_events{message="netif.cprMaxEventsReached"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -345,7 +328,7 @@ groups:
     rules:
       - alert: NeworkInterfaceReadEEPROMFailed
         expr: (ems_events{message="netif.eepromReadFailed"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -363,7 +346,7 @@ groups:
     rules:
       - alert: NeworkInterfaceHangDetected
         expr: (ems_events{message="netif.hangDetected"})
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -380,7 +363,7 @@ groups:
     rules:
       - alert: NeworkInterfaceInitFailed
         expr: (ems_events{message="netif.init.failed"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -397,7 +380,7 @@ groups:
     rules:
       - alert: NeworkInterfaceLinkErrors
         expr: (ems_events{message="netif.linkErrors"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -414,7 +397,7 @@ groups:
     rules:
       - alert: NeworkInterfaceNICNotSupported
         expr: (ems_events{message="netif.nicNotSupported"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -431,7 +414,7 @@ groups:
     rules:
       - alert: NeworkInterfaceOvertempError
         expr: (ems_events{message="netif.overTempError"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -448,7 +431,7 @@ groups:
     rules:
       - alert: NeworkInterfacePHYNotReadError
         expr: (ems_events{message="netif.phyNotRead"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -466,7 +449,7 @@ groups:
     rules:
       - alert: NeworkInterfacePHYOperationFailed
         expr: (ems_events{message="netif.phyOperationFailed"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -484,7 +467,7 @@ groups:
     rules:
       - alert: NeworkInterfaceSpeedNotSupported
         expr: (ems_events{message="netif.speedNotSupported"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -502,7 +485,7 @@ groups:
     rules:
       - alert: NeworkInterfaceTCPBadChecksum
         expr: (ems_events{message="netif.tcp.conn.bad.checksum"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -520,7 +503,7 @@ groups:
     rules:
       - alert: NodeLowNetworkMbuf
         expr: (ems_events{message="nodewatchdog.gfc.too.long"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -538,7 +521,7 @@ groups:
     rules:
       - alert: VIFMgrDBCheckError
         expr: (ems_events{message="vifmgr.dbase.checkerror"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -556,7 +539,7 @@ groups:
     rules:
       - alert: VIFMgrLIFInvalidPort
         expr: (ems_events{message="vifmgr.lif.invalidPort"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -574,7 +557,7 @@ groups:
     rules:
       - alert: VIFMgrLIFOutOfSync
         expr: (ems_events{message="vifmgr.lifIdOutOfSync"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -592,7 +575,7 @@ groups:
     rules:
       - alert: VIFMgrPortOwnerError
         expr: (ems_events{message="vifmgr.portowner.err"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -610,7 +593,7 @@ groups:
     rules:
       - alert: VIFMgrPortSpeedError
         expr: (ems_events{message="vifmgr.portspeed.err"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -828,7 +811,7 @@ groups:
     rules:
       - alert: BadEepromDetected
         expr: last_over_time(ems_events{message="netif.badEeprom"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -845,7 +828,7 @@ groups:
     rules:
       - alert: LinkerrorsDetected
         expr: last_over_time(ems_events{message="netif.linkErrors"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -862,7 +845,7 @@ groups:
     rules:
       - alert: SpeedDowngraded
         expr: last_over_time(ems_events{message="netif.speedDowngraded"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -879,7 +862,7 @@ groups:
     rules:
       - alert: DuplicateIPAddress
         expr: last_over_time(ems_events{message="netinet.ethr.duplct.ipAdrr"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -896,7 +879,7 @@ groups:
     rules:
       - alert: LACPSyncerror
         expr: last_over_time(ems_events{message="pvif.lacp.outofsync"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -913,7 +896,7 @@ groups:
     rules:
       - alert: DuplicateIPDetected
         expr: last_over_time(ems_events{message="tcpip.duplicate.ip"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -930,7 +913,7 @@ groups:
     rules:
       - alert: VifmgrStartupFailovererror
         expr: last_over_time(ems_events{message="vifmgr.startup.failover.err"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -947,7 +930,7 @@ groups:
     rules:              
       - alert: netifexcessLinkInterrupts
         expr: last_over_time(ems_events{message="netif.excessLinkInterrupts"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -964,7 +947,7 @@ groups:
     rules:              
       - alert: NetifSFPNotSupported
         expr: last_over_time(ems_events{message="netif.sfpNotSupported"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -981,7 +964,7 @@ groups:
     rules:              
       - alert: NetworkInterfaceUncorrECCError
         expr: last_over_time(ems_events{message="netif.uncorEccError"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -998,7 +981,7 @@ groups:
     rules:              
       - alert: vifmgrCluslinkdown
         expr: last_over_time(ems_events{message="vifmgr.clus.linkdown"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -1015,7 +998,7 @@ groups:
     rules:                          
       - alert: VifmgrlifsClusterlimit
         expr: last_over_time(ems_events{message="vifmgr.lifs.clusterlimit"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -1032,7 +1015,7 @@ groups:
     rules:                          
       - alert: VifmgrPortMtumismatch
         expr: last_over_time(ems_events{message="vifmgr.port.mtumismatch"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -1049,7 +1032,7 @@ groups:
     rules:                          
       - alert: VifmgrPortDeglifHosted
         expr: last_over_time(ems_events{message="vifmgr.portDeg.lifHosted"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -1066,7 +1049,7 @@ groups:
     rules:
       - alert: VIFMgrLIFOnDegradedPort
         expr: (ems_events{message="vifmgr.lifOnDegPort.noPorts"})
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}

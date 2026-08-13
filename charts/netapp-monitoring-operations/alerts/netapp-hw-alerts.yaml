@@ -623,7 +623,7 @@ groups:
     rules:
       - alert: ControllerTemperatureUnreadable
         expr: last_over_time(ems_events{message="monitor.temp.unreadable"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -640,7 +640,7 @@ groups:
     rules:
       - alert: NANDPredictFailure
         expr: last_over_time(ems_events{message="nand.predict.fail"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -657,7 +657,7 @@ groups:
     rules:
       - alert: NodeWatchdog
         expr: last_over_time(ems_events{message="nodewatchdog.node.failure"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -676,7 +676,7 @@ groups:
     rules:
       - alert: FCPSFPInvalid
         expr: last_over_time(ems_events{message="scsitarget.fcp.sfp.invalid"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -693,7 +693,7 @@ groups:
     rules:
       - alert: ExcessiveCECerrors
         expr: last_over_time(ems_events{message="nvram.excessive.cecc.errs"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
@@ -710,7 +710,7 @@ groups:
     rules:
       - alert: FcpAdapterFailed
         expr: last_over_time(ems_events{message="callhome.fcp.adapter.failed"}[5m]) == 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
