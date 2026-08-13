@@ -566,7 +566,7 @@ groups:
   - name: aggregate_relocation_failed
     rules:
       - alert: AggrRelocationFailed
-        expr: last_over_time(ems_events{message="arl.netra.ca.check.failed"}[1m]) == 1
+        expr: last_over_time(ems_events{message="arl.netra.ca.check.failed"}[5m]) == 1
         for: 1m
         labels:
           severity: critical
@@ -583,7 +583,7 @@ groups:
   - name: aggregate_giveback_object_store_failed
     rules:
       - alert: AggrGivebackObjStoreFailed
-        expr: last_over_time(ems_events{message="gb.netra.ca.check.failed"}[1m]) == 1
+        expr: last_over_time(ems_events{message="gb.netra.ca.check.failed"}[5m]) == 1
         for: 1m
         labels:
           severity: warning

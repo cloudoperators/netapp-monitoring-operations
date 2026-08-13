@@ -6,7 +6,7 @@ groups:
   - name: netapp_mediator_alerts
     rules:
       - alert: AppLogError
-        expr: last_over_time(ems_events{message="app.log.err"}[1m]) == 1
+        expr: last_over_time(ems_events{message="app.log.err"}[5m]) == 1
         for: 1m
         labels:
           severity: critical
@@ -21,7 +21,7 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
       - alert: NoMediatorMailbox
-        expr: last_over_time(ems_events{message="fmmb.mediator.noLckdisk"}[1m]) == 1
+        expr: last_over_time(ems_events{message="fmmb.mediator.noLckdisk"}[5m]) == 1
         for: 1m
         labels:
           severity: critical
@@ -36,7 +36,7 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
       - alert: NullMediatorMailbox
-        expr: last_over_time(ems_events{message="fmmb.mediator.nullLckdiskSuggest"}[1m]) == 1
+        expr: last_over_time(ems_events{message="fmmb.mediator.nullLckdiskSuggest"}[5m]) == 1
         for: 1m
         labels:
           severity: critical
@@ -51,7 +51,7 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
       - alert: MediatorCACertExpired
-        expr: last_over_time(ems_events{message="sm.mediator.cacert.expired"}[1m]) == 1
+        expr: last_over_time(ems_events{message="sm.mediator.cacert.expired"}[5m]) == 1
         for: 1m
         labels:
           severity: critical
@@ -67,7 +67,7 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
       - alert: MediatorCACertExpiring
-        expr: last_over_time(ems_events{message="sm.mediator.cacert.expiring"}[1m]) == 1
+        expr: last_over_time(ems_events{message="sm.mediator.cacert.expiring"}[5m]) == 1
         for: 1m
         labels:
           severity: warning
@@ -83,7 +83,7 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
       - alert: SMMediatorMisconfigured
-        expr: last_over_time(ems_events{message="sm.mediator.misconfigured"}[1m]) == 1
+        expr: last_over_time(ems_events{message="sm.mediator.misconfigured"}[5m]) == 1
         for: 1m
         labels:
           severity: warning
@@ -99,7 +99,7 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
       - alert: SMMediatorRemoved
-        expr: last_over_time(ems_events{message="sm.mediator.removed"}[1m]) == 1
+        expr: last_over_time(ems_events{message="sm.mediator.removed"}[5m]) == 1
         for: 1m
         labels:
           severity: critical
@@ -114,7 +114,7 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
       - alert: SMMediatorRemovedForce
-        expr: last_over_time(ems_events{message="sm.mediator.removed.force"}[1m]) == 1
+        expr: last_over_time(ems_events{message="sm.mediator.removed.force"}[5m]) == 1
         for: 1m
         labels:
           severity: critical
@@ -130,7 +130,7 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
       - alert: SMMediatorServerCertExpired
-        expr: last_over_time(ems_events{message="sm.mediator.serverc.expired"}[1m]) == 1
+        expr: last_over_time(ems_events{message="sm.mediator.serverc.expired"}[5m]) == 1
         for: 1m
         labels:
           severity: critical
@@ -146,7 +146,7 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
       - alert: SMMediatorServerCertExpiring
-        expr: last_over_time(ems_events{message="sm.mediator.serverc.expiring"}[1m]) == 1
+        expr: last_over_time(ems_events{message="sm.mediator.serverc.expiring"}[5m]) == 1
         for: 1m
         labels:
           severity: warning
@@ -162,7 +162,7 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
       - alert: SMMediatorUnreachable
-        expr: last_over_time(ems_events{message="sm.mediator.unreachable"}[1m]) == 1
+        expr: last_over_time(ems_events{message="sm.mediator.unreachable"}[5m]) == 1
         for: 1m
         labels:
           severity: critical
@@ -178,7 +178,7 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
       - alert: SMMediatorUnusable
-        expr: last_over_time(ems_events{message="sm.mediator.unusable"}[1m]) == 1
+        expr: last_over_time(ems_events{message="sm.mediator.unusable"}[5m]) == 1
         for: 1m
         labels:
           severity: critical
