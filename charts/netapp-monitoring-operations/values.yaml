@@ -30,7 +30,7 @@ prometheusRules:
     purestorageErrorAlerts: false  # purestorage-error-alerts.yaml (forge, not in sci scope)
     pvcUsageAlerts: false          # pvc-usage-alerts.yaml (forge, not in sci scope)
   commonLabels:
-    team: sci-storage
+    team: sci-storage-ops
     support_group: storage
 
 podMonitor:
