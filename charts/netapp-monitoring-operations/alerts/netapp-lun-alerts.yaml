@@ -38,40 +38,6 @@ groups:
             'LUN {{ "{{ $labels.lun }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is offline.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
-
-  - name: lun_nvfail
-    rules:
-      - alert: LUNNVfail
-        expr: (ems_events{message="LUN.nvfail.vol.proc.complete"})
-        for: 1m
-        labels:
-          severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_lun
-        annotations:
-          summary: '🔴 LUNs brought offline due to nvlog inconsistency'
-          description: |
-            'LUNs in volume {{ "{{ $labels.vol }}" }} have been brought offline because an inconsistency was detected in the nvlog during boot or takeover
-            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
-            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
-
-  - name: lun_vol_no_space
-    rules:
-      - alert: LUNVolNoSpace
-        expr: last_over_time(ems_events{message="LUN.vol.no.space"}[5m]) == 1
-        for: 1m
-        labels:
-          severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_lun
-        annotations:
-          summary: '🔴 LUN volume has no space'
-          description: |
-            'LUN {{ "{{ $labels.lun_path }}" }} in volume {{ "{{ $labels.volume }}" }} is out of space.
-            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
-            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
  {{- else }}
  groups: []
  {{- end }}

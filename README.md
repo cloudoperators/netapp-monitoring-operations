@@ -166,8 +166,7 @@ charts/netapp-monitoring-operations/
     ├── brocade-error-alerts.yaml
     ├── harvest-poller-alerts.yaml
     ├── netapp-aggr-alerts.yaml
-    ├── netapp-cifs-alerts.yaml
-    ├── netapp-cluster-alerts.yaml
+    ├── netapp-direct-alerts.yaml
     ├── netapp-disk-alerts.yaml
     ├── netapp-ha-alerts.yaml
     ├── netapp-hw-alerts.yaml
@@ -175,7 +174,6 @@ charts/netapp-monitoring-operations/
     ├── netapp-mediator-alerts.yaml
     ├── netapp-misc-alerts.yaml
     ├── netapp-network-alerts.yaml
-    ├── netapp-nfs-alerts.yaml
     ├── netapp-nvdimm-alerts.yaml
     ├── netapp-volume-alerts.yaml
     ├── powerscale-error-alerts.yaml
