@@ -563,56 +563,6 @@ groups:
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
-  - name: aggregate_relocation_failed
-    rules:
-      - alert: AggrRelocationFailed
-        expr: last_over_time(ems_events{message="arl.netra.ca.check.failed"}[5m]) == 1
-        for: 1m
-        labels:
-          severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_aggr
-        annotations:
-          summary: '🔴 Relocation of aggregate {{ "{{ $labels.aggregate }}" }} failed'
-          description: |
-            'Relocation of aggregate {{ "{{ $labels.aggregate }}" }} failed due to {{ "{{ $labels.reason }}" }} preventing object store access on the destination node
-            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
-            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
-
-  - name: aggregate_giveback_object_store_failed
-    rules:
-      - alert: AggrGivebackObjStoreFailed
-        expr: last_over_time(ems_events{message="gb.netra.ca.check.failed"}[5m]) == 1
-        for: 1m
-        labels:
-          severity: warning
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_aggr
-        annotations:
-          summary: '🟡 Giveback of aggregate {{ "{{ $labels.aggregate }}" }} failed'
-          description: |
-            'Giveback of aggregate {{ "{{ $labels.aggregate }}" }} failed due to {{ "{{ $labels.reason }}" }} preventing object store access on the destination node
-            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
-            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
-
-  - name: uninitialized_parity_vol
-    rules:
-      - alert: UninitializedParityVol
-        expr: last_over_time(ems_events{message="raid.uninitialized.parity.vol"}[5m]) == 1
-        for: 1m
-        labels:
-          severity: warning
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_aggr
-        annotations:
-          summary: '🟡 Raid error uninitialized parity volume'
-          description: |
-            'WARNING {{ "{{ $labels.vol_type }}" }} {{ "{{ $labels.owner }}" }} {{ "{{ $labels.vol }}" }} was created with no parity; do not fail its data disks!!
-            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
-            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
  {{- else }}
  groups: []
  {{- end }}

@@ -14,8 +14,7 @@ prometheusRules:
     brocadeErrorAlerts: false      # brocade-error-alerts.yaml (forge, not in sci scope)
     harvestPollerAlerts: true      # harvest-poller-alerts.yaml
     netappAggrAlerts: true         # netapp-aggr-alerts.yaml
-    netappCifsAlerts: true         # netapp-cifs-alerts.yaml
-    netappClusterAlerts: true      # netapp-cluster-alerts.yaml
+    netappDirectAlerts: true       # netapp-direct-alerts.yaml
     netappDiskAlerts: true         # netapp-disk-alerts.yaml
     netappHaAlerts: true           # netapp-ha-alerts.yaml
     netappHwAlerts: true           # netapp-hw-alerts.yaml
@@ -23,7 +22,6 @@ prometheusRules:
     netappMediatorAlerts: true     # netapp-mediator-alerts.yaml
     netappMiscAlerts: true         # netapp-misc-alerts.yaml
     netappNetworkAlerts: true      # netapp-network-alerts.yaml
-    netappNfsAlerts: true          # netapp-nfs-alerts.yaml
     netappNvdimmAlerts: true       # netapp-nvdimm-alerts.yaml
     netappVolumeAlerts: true       # netapp-volume-alerts.yaml
     powerscaleErrorAlerts: false   # powerscale-error-alerts.yaml (forge, not in sci scope)
