@@ -18,7 +18,7 @@ prometheusRules:
     netappDiskAlerts: true         # netapp-disk-alerts.yaml
     netappHaAlerts: true           # netapp-ha-alerts.yaml
     netappHwAlerts: true           # netapp-hw-alerts.yaml
-    netappLunAlerts: true          # netapp-lun-alerts.yaml
+    netappLunAlerts: false          # netapp-lun-alerts.yaml
     netappMediatorAlerts: true     # netapp-mediator-alerts.yaml
     netappMiscAlerts: true         # netapp-misc-alerts.yaml
     netappNetworkAlerts: true      # netapp-network-alerts.yaml
