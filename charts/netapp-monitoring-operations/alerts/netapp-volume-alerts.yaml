@@ -505,7 +505,7 @@ groups:
         annotations:
           summary: '🟡 Volume {{ "{{ $labels.volume }}" }} is nearly full'
           description: |
-            'Volume {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is nearly full: {{ "{{" }} $value {{ "}}" }}.
+            'Volume {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is nearly full: {{ "{{" }} $value {{ "}}" }}. Storage engineer to increase the space by 20% or reduce the usage to below 80%.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
@@ -541,7 +541,7 @@ groups:
         annotations:
           summary: '🔴 Volume {{ "{{ $labels.volume }}" }} is full'
           description: |
-            'Volume {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is full: {{ "{{" }} $value {{ "}}" }}.
+            'Volume {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is full: {{ "{{" }} $value {{ "}}" }}. Storage engineer will increase the space by 20% or reduce the usage to below 80%.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
  {{- else }}
