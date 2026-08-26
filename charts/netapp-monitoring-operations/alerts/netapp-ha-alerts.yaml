@@ -134,7 +134,7 @@ groups:
           max by (netapp_cluster, node, datacenter, cluster_uuid) (
             max_over_time(ems_events{message="clam.node.ooq"}[2m])
           )
-      - record: sfo_giveback_complete_trigger
+      - record: clam_node_inq_trigger
         expr: |
           max by (netapp_cluster, node, datacenter, cluster_uuid) (
             max_over_time(ems_events{message="clam.node.inq"}[2m])
@@ -147,7 +147,7 @@ groups:
             clam_node_ooq_persistent
           )
           unless
-          sfo_giveback_complete_trigger
+          clam_node_inq_trigger
 
   - name: clam_node_ooq_alerts
     rules:
@@ -162,7 +162,7 @@ groups:
         annotations:
           summary: '🔴 Node {{ "{{ $labels.node }}" }} is out of quorum'
           description: |
-            'Node {{ "{{ $labels.node }}" }} is out of quorum (OOQ), indicating a Cluster state issue. The alert resolves when the event "sfo.giveback.complete" is detected.
+            'Node {{ "{{ $labels.node }}" }} is out of quorum (OOQ), indicating a Cluster state issue.
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 

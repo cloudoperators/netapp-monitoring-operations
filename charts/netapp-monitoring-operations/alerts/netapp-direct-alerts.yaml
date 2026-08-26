@@ -1898,40 +1898,6 @@ groups:
             Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
             Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
 
-  - name: vol_full_alert
-    rules:
-      - alert: VolFullAlert
-        expr: last_over_time(ems_events{message="monitor.volume.full"}[5m]) == 1
-        for: 1m
-        labels:
-          severity: critical
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_direct
-        annotations:
-          summary: '🔴 Volume full {{ "{{ $labels.volume }}" }}'
-          description: |
-            'Volume full {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }}: {{ "{{ $value }}" }}
-            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
-            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
-
-  - name: vol_nearly_full_alert
-    rules:
-      - alert: VolNearlyFullAlert
-        expr: last_over_time(ems_events{message="monitor.volume.nearlyFull"}[5m]) == 1
-        for: 1m
-        labels:
-          severity: warning
-          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
-          component: netapp_direct
-        annotations:
-          summary: '🟡 Volume nearly full {{ "{{ $labels.volume }}" }}'
-          description: |
-            'Volume nearly full {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }}: {{ "{{ $value }}" }}
-            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
-            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
-
   - name: vol_move_commit_src_alert
     rules:
       - alert: VolMoveCommitSrcFail

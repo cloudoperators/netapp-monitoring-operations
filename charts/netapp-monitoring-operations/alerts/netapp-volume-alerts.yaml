@@ -472,6 +472,78 @@ groups:
             on node {{ "{{ $labels.node }}" }}. This can impact performance or specific 
             operations. The alert resolves when the token cache is cleared 
             ("token.vol.cache.cleared").'
+
+  - name: sci_volume_nearly_full_final
+    interval: 1m
+    rules:
+      - record: sci_volume_nearly_full_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (avg_over_time(volume_space_physical_used_percent{volume=~".*kub.*|.*mgmt.*", lob="CCloud"}[15m])) > 80
+      - record: sci_volume_nearly_full_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (avg_over_time(volume_space_physical_used_percent{volume=~".*kub.*|.*mgmt.*", lob="CCloud"}[15m])) < 80
+      - record: sci_volume_nearly_full_persistent
+        expr: |
+          (
+            sci_volume_nearly_full_trigger
+            or
+            sci_volume_nearly_full_persistent
+          )
+          unless
+          sci_volume_nearly_full_ok_trigger
+
+  - name: sci_volume_nearly_full_alerts
+    rules:
+      - alert: SCIVolumeNearlyFull
+        expr: sci_volume_nearly_full_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🟡 Volume {{ "{{ $labels.volume }}" }} is nearly full'
+          description: |
+            'Volume {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is nearly full: {{ "{{" }} $value {{ "}}" }}. Storage engineer to increase the space by 20% or reduce the usage to below 80%.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
+
+  - name: sci_volume_full_final
+    interval: 1m
+    rules:
+      - record: sci_volume_full_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (avg_over_time(volume_space_physical_used_percent{volume=~".*kub.*|.*mgmt.*", lob="CCloud"}[15m])) > 90
+      - record: sci_volume_full_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, volume) (avg_over_time(volume_space_physical_used_percent{volume=~".*kub.*|.*mgmt.*", lob="CCloud"}[15m])) < 90
+      - record: sci_volume_full_persistent
+        expr: |
+          (
+            sci_volume_full_trigger
+            or
+            sci_volume_full_persistent
+          )
+          unless
+          sci_volume_full_ok_trigger
+
+  - name: sci_volume_full_alerts
+    rules:
+      - alert: SCIVolumeFull
+        expr: sci_volume_full_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage-ops" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: '🔴 Volume {{ "{{ $labels.volume }}" }} is full'
+          description: |
+            'Volume {{ "{{ $labels.volume }}" }} on node {{ "{{ $labels.node }}" }}, cluster {{ "{{ $labels.netapp_cluster }}" }} is full: {{ "{{" }} $value {{ "}}" }}. Storage engineer will increase the space by 20% or reduce the usage to below 80%.
+            Cluster: {{ "{{ $labels.netapp_cluster }}" }}, Node: {{ "{{ $labels.node }}" }} 
+            Datacenter: {{ "{{ $labels.datacenter }}" }}, LOB: {{ "{{ $labels.lob }}" }},  Service: {{ "{{ $labels.Service }}" }}'
  {{- else }}
  groups: []
  {{- end }}
