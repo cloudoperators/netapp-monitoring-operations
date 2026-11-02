@@ -50,7 +50,7 @@ groups:
           max by (netapp_cluster, home_node, lif) (lif_labels{is_home="true"}) == 1
       - record: lif_exists
         expr: |
-          max by (netapp_cluster, home_node, lif) (lif_labels) or on() vector(0)
+          max by (netapp_cluster, home_node, lif) (lif_labels)
       - record: lif_not_at_home_persistent
         expr: |
           (
