@@ -57,7 +57,7 @@ groups:
             (
               lif_not_at_home_trigger
               or
-              lif_not_at_home_persistent
+              lif_not_at_home_persistent{home_node!=""}
             )
             unless
             lif_at_home_trigger
@@ -68,7 +68,7 @@ groups:
   - name: lif_not_at_home_alerts
     rules:
       - alert: LifNotAtHomeAlert
-        expr: lif_not_at_home_persistent == 1
+        expr: lif_not_at_home_persistent{home_node!=""} == 1
         for: 2m
         labels:
           severity: warning
