@@ -48,15 +48,22 @@ groups:
       - record: lif_at_home_trigger
         expr: |
           max by (netapp_cluster, node, lif) (lif_labels{is_home="true"}) == 1
+      - record: lif_exists
+        expr: |
+          max by (netapp_cluster, node, lif) (lif_labels) or on() vector(0)
       - record: lif_not_at_home_persistent
         expr: |
           (
-            lif_not_at_home_trigger
-            or
-            lif_not_at_home_persistent
+            (
+              lif_not_at_home_trigger
+              or
+              lif_not_at_home_persistent
+            )
+            unless
+            lif_at_home_trigger
           )
-          unless
-          lif_at_home_trigger
+          and
+          lif_exists
 
   - name: lif_not_at_home_alerts
     rules:
